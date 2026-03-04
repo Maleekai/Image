@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 interface SparklineProps {
   data: number[];
   width?: number;
@@ -13,7 +15,24 @@ export function Sparkline({
   height = 24,
   positive = true,
 }: SparklineProps) {
-  if (!data.length) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Render an empty SVG on server to avoid hydration mismatch
+  if (!mounted || !data.length) {
+    return (
+      <svg
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        className="overflow-visible"
+        aria-hidden="true"
+      />
+    );
+  }
 
   const min = Math.min(...data);
   const max = Math.max(...data);
