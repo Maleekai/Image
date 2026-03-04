@@ -22,9 +22,28 @@ Phase 3: v0.dev prototype generation (manual, using output from this skill)
 ### Input Requirements
 
 Before using this skill, you should have:
-1. `design-spec-*.md` files (from Phase 1 competitive analysis)
-2. ZR business context (PRD, FRD, business flow documents)
-3. The `zhuorui-securities-strategy` skill principles
+1. **OKX Complete Analysis**: `zr-competitive-design-analysis/references/okx-complete-analysis.md` — Full 74-flow analysis with extracted design tokens, component library, and interaction patterns
+2. `design-spec-*.md` files (from Phase 1 competitive analysis, if generated)
+3. ZR business context (PRD, FRD, business flow documents)
+4. The `zhuorui-securities-strategy` skill principles
+
+### OKX Design Tokens Reference (Pre-Extracted)
+
+The following tokens were extracted from the full OKX analysis and inform ZR's design system:
+
+**OKX Colors** → **ZR Adaptation**:
+- OKX CTA Primary: #000000 (black pill) → ZR CTA Primary: #1A73E8 (brand blue)
+- OKX Rise/Buy: #00D084/#34C759 → ZR Success: #00C853
+- OKX Fall/Sell: #FF3B30 → ZR Error: #FF1744
+- OKX Badge Lime: #C8FF00 → ZR Badge: #FFB300 (warning amber, more professional)
+- OKX Background: #FFFFFF/#121212 → ZR same approach
+
+**OKX Layout Metrics** (validated from screenshots):
+- Button height: 52px (primary), 36px (secondary) — pill shape (26px radius)
+- List row: 56-64px height
+- Content padding: 16px horizontal
+- Tab bar: 49px + 34px safe area = 83px
+- Nav bar: 44px, Status bar: 59px (Dynamic Island)
 
 ### Output Files
 
@@ -225,9 +244,14 @@ and commodities trading across multiple exchanges (HashKey, Bullish, OSL, VDX).
 
 Read the appropriate reference file for module-specific prompt details:
 
-- `references/v0-market-prompts.md` — Market list & discovery prompts
-- `references/v0-trading-prompts.md` — Trading, K-line, order book prompts
-- `references/v0-asset-prompts.md` — Assets, deposit, withdraw prompts
+- `references/v0-market-prompts.md` — Market list & discovery prompts (OKX Flows 003, 010-013, 015)
+- `references/v0-trading-prompts.md` — Trading, K-line, order book prompts (OKX Flows 014-017, 022, 025)
+- `references/v0-asset-prompts.md` — Assets, deposit, withdraw prompts (OKX Flows 032-036, 039)
+- `references/v0-onboarding-prompts.md` — Onboarding, login, verification prompts (OKX Flows 001-002, 060, 074)
+- `references/v0-settings-prompts.md` — Settings, security, profile prompts (OKX Flows 056-073)
+- `references/v0-earn-prompts.md` — Earn, structured products, grow prompts (OKX Flows 026-031)
+- `references/v0-order-management-prompts.md` — Order management, history prompts (OKX Flows 020, 035-036)
+- `references/flow-module-mapping.md` — Complete OKX/Binance flow → module mapping
 
 ---
 

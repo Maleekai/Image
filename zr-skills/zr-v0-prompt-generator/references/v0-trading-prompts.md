@@ -1,5 +1,8 @@
 # v0 Prompt Guide: Trading Module
 
+> Source: OKX Flows 014-017, 022, 025 | Extracted from full OKX analysis
+> OKX Patterns: Chart area ~40% screen height with MA overlays (MA7, MA30), time period tabs (15m/1h/4h/1D/More), order book split buy/sell with depth bars, order form with Buy/Sell toggle + order type dropdown + price/amount inputs + percentage quick-buttons, confirmation modal with TP/SL expandable section, convert interface with From/To swap.
+
 ## Key Screens to Generate
 
 ### Screen 1: Symbol Detail (K-line Page)
@@ -89,6 +92,45 @@ Modal/bottom sheet after tapping "Place Order":
 └──────────────────────────────────┘
 ```
 
+## Screen 4: Convert (Simple Swap)
+OKX Flow 022 — Simple swap interface for token conversion.
+
+**Layout zones**:
+1. **Nav bar** (44px): Back arrow, "Convert" title
+2. **From field** (80px): Asset selector dropdown + amount input + "Max" link
+3. **Swap button** (44px): Circular arrow icon (center, tappable to swap From/To)
+4. **To field** (80px): Asset selector dropdown + estimated output (gray, calculated)
+5. **Rate display** (36px): "1 BTC ≈ 67,234.50 USDT" with refresh icon
+6. **Convert button** (52px): Brand blue, full-width, "Convert"
+
+**OKX Pattern**: Simple From/To with swap direction button, one-tap convert. Very clean, minimal UI — good for beginner users. ZR should implement this as the "Simple Trade" mode for new users.
+
+## OKX Component Patterns (Extracted) — Apply to ZR Trading Module
+
+### Order Book Component (OKX Flow 014)
+- Split view: Red asks (top, descending) | Green bids (bottom, ascending)
+- Each row: Price (mono font) | Amount | Depth bar (colored background fill proportional to volume)
+- Spread indicator in center gap: "Spread: 5.50 (0.008%)"
+- Tap on price level → auto-fills order form price field
+- Depth bars: Semi-transparent green/red fills from right edge
+
+### Chart Component (OKX Flow 014-015)
+- Candlestick chart default, line chart toggle
+- MA overlays: MA7 (orange), MA30 (blue)
+- Time period tabs: 15m | 1H | 4H | 1D | More (opens full list)
+- Fullscreen icon top-right of chart
+- Technical indicator button bottom-left
+- Pinch-to-zoom, pan, crosshair on touch-and-hold with price/time tooltip
+- OHLCV display row below chart header
+
+### Order Confirmation Modal (OKX Flow 014)
+- Center overlay with semi-transparent backdrop
+- Order details in key-value rows
+- TP/SL expandable section (chevron toggle)
+- "Don't show again" checkbox (OKX has this — ZR should NOT have it per antifragile principles)
+- Confirm button color matches side (green for buy, red for sell)
+- Cancel text button below
+
 ## Mock Data for Trading
 
 ```javascript
@@ -96,13 +138,28 @@ const orderBookMock = {
   asks: [
     { price: 67280.00, amount: 1.234, total: 83027.52 },
     { price: 67275.50, amount: 0.567, total: 38145.21 },
-    // 10 levels
+    { price: 67271.00, amount: 0.890, total: 59851.19 },
+    { price: 67268.50, amount: 2.100, total: 141263.85 },
+    { price: 67265.00, amount: 0.345, total: 23206.43 },
   ],
   bids: [
     { price: 67270.00, amount: 2.345, total: 157738.15 },
     { price: 67265.50, amount: 0.890, total: 59866.30 },
-    // 10 levels
+    { price: 67260.00, amount: 1.567, total: 105394.42 },
+    { price: 67255.50, amount: 0.432, total: 29054.38 },
+    { price: 67250.00, amount: 3.210, total: 215872.50 },
   ],
   spread: "5.50 (0.008%)"
+};
+
+const chartMock = {
+  pair: "BTC/USDT",
+  currentPrice: 67274.50,
+  change24h: 2.34,
+  high24h: 67500.00,
+  low24h: 65800.00,
+  volume24h: "1.2B",
+  exchange: "HashKey",
+  timeframes: ["15m", "1H", "4H", "1D", "1W", "1M"],
 };
 ```

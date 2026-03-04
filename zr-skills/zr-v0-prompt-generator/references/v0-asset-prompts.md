@@ -1,5 +1,8 @@
 # v0 Prompt Guide: Assets, Deposit & Withdraw Module
 
+> Source: OKX Flows 032-036, 039 | Extracted from full OKX analysis
+> OKX Patterns: Exchange/Wallet toggle at top, total holdings in USD (large display), individual asset rows (icon, name, balance, USD value), "Balance less than 10 USD" dust filter, network selector with radio buttons (fee/arrival time), QR code display centered 160px, address with copy button, transfer form with From/To account dropdowns + "Max" link, history with filter tabs and green/red color coding.
+
 ## Key Screens to Generate
 
 ### Screen 1: Assets Overview (Portfolio)

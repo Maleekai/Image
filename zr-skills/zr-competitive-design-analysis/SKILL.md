@@ -155,9 +155,44 @@ Before finalizing any design-spec document, verify:
 
 ---
 
+## Complete OKX Analysis (Full 74-Flow Coverage)
+
+The comprehensive analysis of all 429 OKX screenshots across 74 Mobbin Flows is available at:
+
+**`references/okx-complete-analysis.md`** — Contains:
+- App architecture overview (5-tab navigation, Exchange/Wallet dual-mode)
+- Extracted design system tokens (colors, typography, spacing, border radius)
+- Flow-by-flow analysis of ALL 74 flows grouped by functional area:
+  - Flows 001-002: Onboarding & Verification
+  - Flows 003-009: Home, Rewards, Referral, Notifications, Search, Articles
+  - Flows 010-013: Market Discovery, Favorites, Sorting
+  - Flow 014: Core Trading Screen
+  - Flows 015-017: Crypto Detail, Sell, Action Options
+  - Flows 018-021: P2P Trading
+  - Flows 022-025: Convert, Bots, Copy Trading, Options
+  - Flows 026-031: Grow (Earn, Loans, Jumpstart, Structured Products)
+  - Flows 032-036: Assets, Deposit, Transfer, History
+  - Flows 037-055: Web3 Wallet (Keyless, NFT, DeFi, DApps)
+  - Flows 056-058: Menu, Shortcuts, Settings
+  - Flows 059-066: Profile Management
+  - Flows 067-073: Security, Language, Notifications, Help, Legal
+  - Flow 074: Login
+- Complete component library (30+ components with variants)
+- Interaction patterns summary
+- Design strengths (8 items) & weaknesses (8 items)
+- ZR adaptation recommendations per flow group
+
+### How to Use the Complete Analysis
+
+1. **For design-spec generation**: Read the relevant flow group from `okx-complete-analysis.md`, then use `templates/design-spec-template.md` to structure the output
+2. **For v0 prompt generation**: Feed the extracted design tokens and component specs directly into the `zr-v0-prompt-generator` skill
+3. **For Binance diff analysis**: Use OKX analysis as baseline, then compare with Binance screenshots for the same module
+
+---
+
 ## Module-Specific Analysis Guides
 
-For detailed analysis guidance per module, read the appropriate reference file:
+For additional per-module guidance beyond the complete analysis:
 
 - `references/market-analysis-guide.md` — Market list & discovery specific patterns
 - `references/trading-analysis-guide.md` — Trading, order book, K-line specific patterns

@@ -1,5 +1,8 @@
 # v0 Prompt Guide: Market & Discovery Module
 
+> Source: OKX Flows 003, 010-013, 015 | Extracted from full OKX analysis
+> OKX Patterns: Discover page with horizontal category tabs (Opportunities/Rankings/Market Data), data-dense tables with live updating prices, mini sparkline charts in list rows, green/red coloring for change direction, star icon toggle for favorites, drag-to-reorder in edit mode, bottom sheet modal with search for currency filter.
+
 ## Key Screens to Generate
 
 ### Screen 1: Market List (Home)
@@ -71,3 +74,30 @@ Small badge showing which exchange handles this pair:
   - OSL: #FF6D00
   - VDX: #7C4DFF
 ```
+
+## OKX Component Patterns (Extracted) — Apply to ZR Market Module
+
+### Favorites Management (OKX Flows 011-013)
+- Star icon toggle on each market row (tap to add/remove)
+- Favorites tab as first in category tabs
+- Edit mode: drag handles for reorder, "Edit" button top-right
+- Empty favorites state: illustration + "Add your first favorite" CTA
+
+### Sort Controls (OKX Flow 013)
+- Tappable column headers: Name | Price | 24h Change
+- Sort indicator: ▲/▼ arrow on active column
+- Cycle: Default → Ascending → Descending → Default
+
+### Currency Filter (OKX Flow 012)
+- Bottom sheet modal with search input at top
+- Popular currencies as horizontal chips (USDT, BTC, ETH, HKD)
+- Full alphabetical list below
+- Selected currency highlighted with checkmark
+
+### Search Overlay (OKX Flows 007-009)
+- Full-screen overlay triggered by search icon
+- Auto-focus on search input
+- Trending searches as chips
+- Recent searches with "Clear all" link
+- Real-time results as-you-type with debounce
+- Results use same market row component

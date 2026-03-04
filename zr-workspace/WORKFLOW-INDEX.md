@@ -9,8 +9,8 @@
 | Phase | Status | Output |
 |-------|--------|--------|
 | Phase 0: 截图分类 | ✅ 完成 | GitHub: OKX_iOS/ (74 flows), Binance_iOS/ (248 flows) |
-| Phase 1: 竞品学习 | 🔲 待开始 | → design-specs/ (8份设计规范) |
-| Phase 2: 设计决策 | 🔲 待开始 | → design-decisions/ + v0-prompts/ |
+| Phase 1: 竞品学习 | ✅ 完成 | OKX全量分析: okx-complete-analysis.md (74 flows, 429 screenshots) |
+| Phase 2: 设计决策 | 🔄 进行中 | Skills已更新, v0 Prompt引用文件已完成 (8个模块全覆盖) |
 | Phase 3: 原型生成 | 🔲 待开始 | → v0.dev 在线原型 |
 | Phase 4: Figma精调 | 🔲 待开始 | → Figma 高保真设计 |
 | Phase 5: 文档更新 | 🔲 待开始 | → PRD v2.0 + FRD v2.0 |
@@ -34,8 +34,9 @@ Image/ (GitHub repo root)
 │
 ├── zr-skills/                        ← Claude Skills (可安装到Cowork)
 │   ├── zr-competitive-design-analysis/   ← Skill 1: 竞品设计分析
-│   │   ├── SKILL.md                      ← 主技能文件
-│   │   ├── references/                   ← 模块分析指南
+│   │   ├── SKILL.md                      ← 主技能文件 (已更新: 引用全量分析)
+│   │   ├── references/                   ← 分析指南 + 全量分析
+│   │   │   ├── okx-complete-analysis.md  ← ★ OKX全量分析 (74 flows, 342行)
 │   │   │   ├── market-analysis-guide.md
 │   │   │   ├── trading-analysis-guide.md
 │   │   │   └── asset-analysis-guide.md
@@ -43,11 +44,15 @@ Image/ (GitHub repo root)
 │   │       └── design-spec-template.md
 │   │
 │   └── zr-v0-prompt-generator/           ← Skill 2: v0 Prompt生成器
-│       ├── SKILL.md                      ← 主技能文件
-│       ├── references/                   ← v0 Prompt详细指南
-│       │   ├── v0-market-prompts.md
-│       │   ├── v0-trading-prompts.md
-│       │   ├── v0-asset-prompts.md
+│       ├── SKILL.md                      ← 主技能文件 (已更新: 融合OKX tokens)
+│       ├── references/                   ← v0 Prompt详细指南 (8个模块全覆盖)
+│       │   ├── v0-market-prompts.md      ← 行情列表 (已增强OKX组件)
+│       │   ├── v0-trading-prompts.md     ← 交易下单 (已增强OKX组件)
+│       │   ├── v0-asset-prompts.md       ← 资产管理 (已增强OKX组件)
+│       │   ├── v0-onboarding-prompts.md  ← ★ 新增: 开户/登录
+│       │   ├── v0-settings-prompts.md    ← ★ 新增: 设置/安全
+│       │   ├── v0-earn-prompts.md        ← ★ 新增: 理财/Earn
+│       │   ├── v0-order-management-prompts.md ← ★ 新增: 委托管理
 │       │   └── flow-module-mapping.md    ← Flow文件夹→分析模块映射表
 │       └── templates/                    ← v0 Prompt模板
 │           └── v0-prompt-template.md
@@ -126,50 +131,52 @@ Image/ (GitHub repo root)
 
 ---
 
-## Phase 1 执行指南: 竞品截图分析
+## Phase 1 执行指南: 竞品截图分析 ✅ 已完成
 
-### 操作步骤
+### 完成状态
 
-每轮分析一个模块（约15-20张截图），共8轮：
+OKX全量分析已完成，采用自动化方式一次性分析了全部74个Flow的429张截图：
 
-| 轮次 | 模块 | OKX Flow文件夹 | 操作 |
-|------|------|----------------|------|
-| 1 | 行情列表 | 003, 010-013, 015 | 上传截图 → Claude分析 → design-spec-01 |
-| 2 | K线盘口 | 014, 015 | 上传截图 → Claude分析 → design-spec-02 |
-| 3 | 交易下单 | 014, 016-017, 019, 022, 025 | 上传截图 → Claude分析 → design-spec-03 |
-| 4 | 委托管理 | 020, 035, 036 | 上传截图 → Claude分析 → design-spec-04 |
-| 5 | 资产管理 | 032, 034, 039 | 上传截图 → Claude分析 → design-spec-05 |
-| 6 | 充值提币 | 033, 035 | 上传截图 → Claude分析 → design-spec-06 |
-| 7 | 开户设置 | 001, 002, 060, 074 | 上传截图 → Claude分析 → design-spec-07 |
-| 8 | Binance差异 | Binance特有Flow | 上传截图 → Claude分析 → design-spec-08 |
+**产出文件**: `zr-skills/zr-competitive-design-analysis/references/okx-complete-analysis.md`
 
-### 每轮的Claude Prompt
+**覆盖范围**:
+| 分组 | Flows | 截图数 | 状态 |
+|------|-------|--------|------|
+| 开户/登录 | 001-002, 060, 074 | ~25 | ✅ |
+| 首页/发现/搜索 | 003-013 | ~60 | ✅ |
+| 交易/K线/盘口 | 014-017 | ~25 | ✅ |
+| P2P/买卖 | 018-021 | ~30 | ✅ |
+| 兑换/机器人/跟单/期权 | 022-025 | ~20 | ✅ |
+| 理财/贷款/Jumpstart | 026-031 | ~40 | ✅ |
+| 资产/充提/转账/历史 | 032-036, 039 | ~45 | ✅ |
+| Web3钱包/NFT/DeFi | 037-055 | ~100 | ✅ |
+| 菜单/快捷/设置/安全 | 056-073 | ~70 | ✅ |
+| 登录 | 074 | ~14 | ✅ |
 
-```
-[触发 zr-competitive-design-analysis skill]
+**提取产出**: 设计系统tokens、30+组件库、交互模式汇总、8项优势/8项弱点、ZR适配建议
 
-分析模块：[模块名]
-截图来源：OKX iOS / [Flow文件夹名]
-截图数量：[XX]张
-
-请按照设计规范模板输出完整分析文档。
-```
+### Binance差异分析（待执行）
+Binance的1811张截图（248 Flows）可作为Phase 1.5单独分析，重点关注与OKX的差异点。
 
 ---
 
-## Phase 2 执行指南: 设计决策 + v0 Prompt
+## Phase 2 执行指南: 设计决策 + v0 Prompt 🔄 进行中
 
-### 前置条件
-Phase 1 的 8 份 design-spec 文档全部完成
+### 前置条件 ✅
+Phase 1 OKX全量分析已完成 (`okx-complete-analysis.md`)
 
-### 操作步骤
+### 已完成
+- ✅ Skill 1 (`zr-competitive-design-analysis`) 已更新，引用全量分析
+- ✅ Skill 2 (`zr-v0-prompt-generator`) 已更新，融合OKX设计tokens
+- ✅ v0 Prompt引用文件已扩展到8个模块全覆盖 (原3个→现7个+映射表)
+- ✅ 新增模块: 开户/登录、设置/安全、理财/Earn、委托管理
 
-1. 将所有 design-spec 文档上传到新的 Claude 对话
-2. 触发 `zr-v0-prompt-generator` skill
-3. Claude 生成：
+### 下一步操作
+
+1. 触发 `zr-v0-prompt-generator` skill 生成：
    - `zr-design-decisions.md` — 设计决策总纲
    - `zr-design-system.md` — 设计系统规范
-   - 9份 v0 prompt 文件
+   - 9份 v0 prompt 文件 (00-08)
 
 ---
 
