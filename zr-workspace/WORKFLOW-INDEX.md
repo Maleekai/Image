@@ -11,7 +11,7 @@
 | Phase 0: 截图分类 | ✅ 完成 | GitHub: OKX_iOS/ (74 flows), Binance_iOS/ (248 flows) |
 | Phase 1: 竞品学习 | ✅ 完成 | OKX全量分析: okx-complete-analysis.md (74 flows, 429 screenshots) |
 | Phase 1.5: 深度像素分析 | ✅ 完成 | 8份design-spec文档 (共174KB), 9份v0 prompt参考文档 |
-| Phase 2: 设计决策 | 🔄 进行中 | Skills已更新, v0 Prompt引用文件已完成 (9个模块全覆盖) |
+| Phase 2: 设计决策 | ✅ 完成 | 设计决策总纲 + 设计系统规范 + 9份v0 Prompt (00-08, 共101KB) |
 | Phase 3: 原型生成 | 🔲 待开始 | → v0.dev 在线原型 |
 | Phase 4: Figma精调 | 🔲 待开始 | → Figma 高保真设计 |
 | Phase 5: 文档更新 | 🔲 待开始 | → PRD v2.0 + FRD v2.0 |
@@ -70,19 +70,19 @@ Image/ (GitHub repo root)
     │   ├── design-spec-06-earn-grow.md            ← ✅ 理财/Earn/结构化产品 (31KB)
     │   ├── design-spec-07-p2p-convert-copy.md     ← ✅ P2P/兑换/跟单/机器人 (13KB)
     │   └── design-spec-08-settings-security.md    ← ✅ 设置/安全/手续费 (26KB)
-    ├── design-decisions/             ← Phase 2 输出：设计决策
-    │   ├── (待生成) zr-design-decisions.md
-    │   └── (待生成) zr-design-system.md
-    └── v0-prompts/                   ← Phase 2 输出：v0 Prompt集
-        ├── (待生成) 00-design-system.md
-        ├── (待生成) 01-market-list.md
-        ├── (待生成) 02-symbol-detail.md
-        ├── (待生成) 03-trade-order.md
-        ├── (待生成) 04-order-management.md
-        ├── (待生成) 05-assets.md
-        ├── (待生成) 06-deposit.md
-        ├── (待生成) 07-withdraw.md
-        └── (待生成) 08-onboarding.md
+    ├── design-decisions/             ← Phase 2 输出：设计决策 (已完成 ✅)
+    │   ├── zr-design-decisions.md         ← ✅ 设计决策总纲 (12直接借鉴+12差异化+8创新+5原则)
+    │   └── zr-design-system.md            ← ✅ 设计系统规范 (色彩/字体/间距/组件)
+    └── v0-prompts/                   ← Phase 2 输出：v0 Prompt集 (已完成 ✅)
+        ├── 00-design-system.md            ← ✅ 全局设计系统组件
+        ├── 01-market-list.md              ← ✅ 行情列表页
+        ├── 02-symbol-detail.md            ← ✅ 币种详情(K线)
+        ├── 03-trade-order.md              ← ✅ 交易下单(含冷静期)
+        ├── 04-order-management.md          ← ✅ 委托管理
+        ├── 05-assets.md                     ← ✅ 资产总览
+        ├── 06-deposit.md                    ← ✅ 充值页面
+        ├── 07-withdraw.md                   ← ✅ 提币页面(含安全验证)
+        └── 08-onboarding.md                 ← ✅ 开户流程(5屏)
 ```
 
 ---
