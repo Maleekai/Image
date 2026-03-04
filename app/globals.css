@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Background */
+  --bg-primary: #0B0B0E;
+  --bg-secondary: #131318;
+  --bg-tertiary: #1A1A22;
+
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #8E8E93;
+  --text-tertiary: #5A5A5E;
+
+  /* Brand */
+  --brand-blue: #1A73E8;
+  --brand-blue-hover: #1565C0;
+
+  /* Semantic: Rise / Fall */
+  --rise: #0ECB81;
+  --fall: #F6465D;
+  --rise-bg: rgba(14, 203, 129, 0.12);
+  --fall-bg: rgba(246, 70, 93, 0.12);
+
+  /* Border */
+  --border: #1E1E26;
+  --border-light: #2A2A34;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #050507;
+  color: var(--text-primary);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+/* Scrollbar styling for dark mode */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Touch overscroll */
+.no-overscroll {
+  overscroll-behavior: none;
+}
+
+/* Disable text selection on interactive elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Tabular numbers for price displays */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rise/Fall text utilities */
+.text-rise {
+  color: var(--rise);
+}
+.text-fall {
+  color: var(--fall);
+}
+.bg-rise {
+  background-color: var(--rise);
+}
+.bg-fall {
+  background-color: var(--fall);
+}
+
+/* Safe area bottom padding */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Animation utilities */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes pulse-price {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+.animate-pulse-price {
+  animation: pulse-price 0.4s ease-in-out;
+}
