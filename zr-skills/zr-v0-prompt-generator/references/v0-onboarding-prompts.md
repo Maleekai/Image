@@ -1,6 +1,26 @@
 # v0 Prompt Guide: Onboarding & Login Module
 
 > Source: OKX Flows 001-002, 060, 074 | Extracted from full OKX analysis
+> Pixel Data: design-spec-04-onboarding-login.md | Device: 1125×2436px (3x) / 375×812pt
+
+## OKX Extracted Design Tokens (Onboarding)
+| Token | Value | Usage |
+|-------|-------|-------|
+| bg-splash | #000000 | Splash/loading screens |
+| bg-verification | #FFFFFF | Code entry, forms |
+| text-title | #000000, 34px bold SF Pro Display | Screen headings |
+| text-subtitle | #333333, 16px regular | Instruction text |
+| input-border-active | #1A73E8, 2px | Focused code input box |
+| input-border-default | #E0E0E0, 1px | Empty code input box |
+| btn-primary-disabled | #E8E8E8 bg, #999999 text | Inactive CTA |
+| btn-primary-active | #000000 bg, #FFFFFF text | Active CTA |
+| btn-radius | 28px | Primary button pill shape |
+| btn-height | 56px | Standard CTA height |
+| keypad-btn | 170×80px, radius 12px, 8px gap | Numeric keypad buttons |
+| keypad-number | 28px bold #000000 | Keypad digit font |
+| code-box | 56×56px, radius 8px, gap 8px | 6-digit OTP input boxes |
+| cursor | 2×30px #1A73E8, animated | Active code input cursor |
+| resend-timer | 14px regular #B0B0B0 | "Resend (57s)" disabled state |
 
 ## Key Screens to Generate
 
@@ -40,7 +60,7 @@
 **Layout zones**:
 1. **Nav bar** (44px): Back arrow, "Verify" title
 2. **Instruction text**: "Enter the 6-digit code sent to +852 **** 1234" (15px body)
-3. **OTP input** (center): 6 separate input boxes (44×52px each, 8px radius, 8px gap), auto-advance on digit entry
+3. **OTP input** (Y:380px): 6 separate input boxes (56×56px each, 8px radius, 8px gap), auto-advance on digit entry. Active box: 2px border #1A73E8 with animated blue cursor (2×30px). Empty box: 1px border #E0E0E0
 4. **Resend timer**: "Resend code in 58s" (13px, gray), becomes tappable teal link when timer reaches 0
 5. **Help link**: "Didn't receive the code?" (13px, teal)
 

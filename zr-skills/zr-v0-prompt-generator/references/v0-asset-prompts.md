@@ -1,6 +1,27 @@
 # v0 Prompt Guide: Assets, Deposit & Withdraw Module
 
 > Source: OKX Flows 032-036, 039 | Extracted from full OKX analysis
+> Pixel Data: design-spec-03-assets-deposit-withdraw.md
+
+## OKX Extracted Design Tokens (Assets/Deposit/Withdraw)
+| Token | Value | Usage |
+|-------|-------|-------|
+| total-value-font | 28px bold, #000000 | Portfolio total display |
+| total-label | 13px regular, #999999 | "Total Assets" label |
+| pnl-positive | 16px, #22C55E | Positive P&L values |
+| pnl-negative | 16px, #EF4444 | Negative P&L values |
+| asset-row-height | 64px | Asset list item |
+| asset-icon | 36×36px, circular | Coin/asset icon |
+| qr-code | 160×160px, centered | Deposit QR code |
+| address-font | 14px mono, #000000 | Blockchain address |
+| copy-btn | 24×24px, #1A73E8 | Copy address icon |
+| network-radio | 20×20px | Network selector radio |
+| network-row | 72px height | Network option row |
+| warning-banner | amber bg #FFF3CD, text #856404 | Deposit/withdrawal warnings |
+| warning-border | 1px #FFE69C | Warning border |
+| quick-action-btn | icon(20px) + text(12px), 60px wide | Deposit/Withdraw/Transfer buttons |
+| eye-toggle | 24×24px | Hide balance icon |
+| dust-filter | 13px, #999999 | "Hide < $10" filter |
 > OKX Patterns: Exchange/Wallet toggle at top, total holdings in USD (large display), individual asset rows (icon, name, balance, USD value), "Balance less than 10 USD" dust filter, network selector with radio buttons (fee/arrival time), QR code display centered 160px, address with copy button, transfer form with From/To account dropdowns + "Max" link, history with filter tabs and green/red color coding.
 
 ## Key Screens to Generate

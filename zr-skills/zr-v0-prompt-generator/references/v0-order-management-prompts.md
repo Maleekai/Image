@@ -1,6 +1,23 @@
 # v0 Prompt Guide: Order Management & History Module
 
 > Source: OKX Flows 020, 035-036 | Extracted from full OKX analysis
+> Pixel Data: design-spec-02-trading.md, design-spec-03-assets-deposit-withdraw.md
+
+## OKX Extracted Design Tokens (Orders/History)
+| Token | Value | Usage |
+|-------|-------|-------|
+| order-card-height | 88px | Order list item |
+| order-border-buy | 3px left, #22C55E | Buy order indicator |
+| order-border-sell | 3px left, #EF4444 | Sell order indicator |
+| status-open | #2563EB | Open order badge |
+| status-partial | #F59E0B (amber) | Partially filled badge |
+| status-pending | #999999 | Pending badge |
+| status-completed | #10B981 (green) | Completed badge |
+| status-failed | #EF4444 | Failed badge |
+| tx-row-height | 72px | Transaction history row |
+| badge-radius | 12px | Status badge pill |
+| filter-tab-height | 36px | Tab bar for filters |
+| date-picker | 28px height | Status filter pills |
 
 ## Key Screens to Generate
 

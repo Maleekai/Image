@@ -1,6 +1,25 @@
 # v0 Prompt Guide: Earn & Grow Module
 
 > Source: OKX Flows 026-031 | Extracted from full OKX analysis
+> Pixel Data: design-spec-06-earn-grow.md | Device: 390px width (iPhone 12/13)
+
+## OKX Extracted Design Tokens (Earn/Grow)
+| Token | Value | Usage |
+|-------|-------|-------|
+| bg-page | #FFFFFF | Page background |
+| bg-card | #F5F5F5 | Card/section backgrounds |
+| text-headline | 32px, weight 700, #000000 | Hero headline |
+| text-countdown | 18px regular, #10B981 (emerald) | Timer highlight |
+| text-merchant | 16px weight 600, #000000 | Product names |
+| text-secondary | 14px regular, #666666 | Descriptions |
+| card-radius | 12px | Product/merchant cards |
+| card-padding | 16px | Internal card padding |
+| card-height | 65px | Standard card |
+| icon-nav | 24×24px, #000000 | Navigation chevrons |
+| tap-target | 44×44px min | All interactive |
+| tab-indicator | 235px×2px, #000000 | Active tab underline |
+| accent-emerald | #10B981 | Success/positive |
+| accent-lime | #84FF00 | Bonus badges |
 
 ## Key Screens to Generate
 

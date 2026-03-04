@@ -1,6 +1,26 @@
 # v0 Prompt Guide: Settings, Security & Profile Module
 
 > Source: OKX Flows 056-073 | Extracted from full OKX analysis
+> Pixel Data: design-spec-08-settings-security.md | Device: 390×844px (iPhone 14)
+
+## OKX Extracted Design Tokens (Settings/Security)
+| Token | Value | Usage |
+|-------|-------|-------|
+| bg-page | #FFFFFF | Page background |
+| bg-banner-overlay | rgba(0,0,0,0.3) | Promotional banner |
+| text-header-tab | 16px weight 600, #000 | Header tabs |
+| text-search | 16px weight 400, #999 | Search placeholder |
+| text-menu-label | 13px weight 500, #000 | Menu item labels |
+| text-action-label | 11px weight 500 | Action button labels |
+| icon-menu | 32×32px | Menu grid icons |
+| icon-action | 24×24px | Action buttons |
+| avatar | 52px diameter | Profile circle |
+| action-btn | 68px wide, 56px tall | Action button containers |
+| promo-card | 80px height, 12px radius | Feature promotion |
+| tab-nav | 56px height | Tab navigation |
+| search-bar | 44px height, rounded | Search input |
+| accent-orange | #F7931A | Icon accents |
+| safe-area | 44px top, 34px bottom | iOS safe areas |
 
 ## Key Screens to Generate
 

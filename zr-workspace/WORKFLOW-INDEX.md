@@ -10,7 +10,8 @@
 |-------|--------|--------|
 | Phase 0: 截图分类 | ✅ 完成 | GitHub: OKX_iOS/ (74 flows), Binance_iOS/ (248 flows) |
 | Phase 1: 竞品学习 | ✅ 完成 | OKX全量分析: okx-complete-analysis.md (74 flows, 429 screenshots) |
-| Phase 2: 设计决策 | 🔄 进行中 | Skills已更新, v0 Prompt引用文件已完成 (8个模块全覆盖) |
+| Phase 1.5: 深度像素分析 | ✅ 完成 | 8份design-spec文档 (共174KB), 9份v0 prompt参考文档 |
+| Phase 2: 设计决策 | 🔄 进行中 | Skills已更新, v0 Prompt引用文件已完成 (9个模块全覆盖) |
 | Phase 3: 原型生成 | 🔲 待开始 | → v0.dev 在线原型 |
 | Phase 4: Figma精调 | 🔲 待开始 | → Figma 高保真设计 |
 | Phase 5: 文档更新 | 🔲 待开始 | → PRD v2.0 + FRD v2.0 |
@@ -45,29 +46,30 @@ Image/ (GitHub repo root)
 │   │
 │   └── zr-v0-prompt-generator/           ← Skill 2: v0 Prompt生成器
 │       ├── SKILL.md                      ← 主技能文件 (已更新: 融合OKX tokens)
-│       ├── references/                   ← v0 Prompt详细指南 (8个模块全覆盖)
-│       │   ├── v0-market-prompts.md      ← 行情列表 (已增强OKX组件)
-│       │   ├── v0-trading-prompts.md     ← 交易下单 (已增强OKX组件)
-│       │   ├── v0-asset-prompts.md       ← 资产管理 (已增强OKX组件)
-│       │   ├── v0-onboarding-prompts.md  ← ★ 新增: 开户/登录
-│       │   ├── v0-settings-prompts.md    ← ★ 新增: 设置/安全
-│       │   ├── v0-earn-prompts.md        ← ★ 新增: 理财/Earn
-│       │   ├── v0-order-management-prompts.md ← ★ 新增: 委托管理
-│       │   └── flow-module-mapping.md    ← Flow文件夹→分析模块映射表
+│       ├── references/                   ← v0 Prompt指南 (9模块, 含pixel tokens)
+│       │   ├── v0-market-prompts.md      ← ✅ 行情 (pixel tokens表)
+│       │   ├── v0-trading-prompts.md     ← ✅ 交易 (pixel tokens表)
+│       │   ├── v0-asset-prompts.md       ← ✅ 资产 (pixel tokens表)
+│       │   ├── v0-onboarding-prompts.md  ← ✅ 开户/登录 (pixel tokens表)
+│       │   ├── v0-settings-prompts.md    ← ✅ 设置/安全 (pixel tokens表)
+│       │   ├── v0-earn-prompts.md        ← ✅ 理财/Earn (pixel tokens表)
+│       │   ├── v0-order-management-prompts.md ← ✅ 委托管理 (pixel tokens表)
+│       │   ├── v0-p2p-convert-prompts.md ← ★ 新增: P2P/兑换/跟单
+│       │   └── flow-module-mapping.md    ← Flow→模块映射
 │       └── templates/                    ← v0 Prompt模板
 │           └── v0-prompt-template.md
 │
 └── zr-workspace/                     ← 工作产出区（所有Phase输出存这里）
     ├── WORKFLOW-INDEX.md             ← 本文件（全链路索引）
-    ├── design-specs/                 ← Phase 1 输出：竞品设计规范
-    │   ├── (待生成) design-spec-01-market-list.md
-    │   ├── (待生成) design-spec-02-kline-orderbook.md
-    │   ├── (待生成) design-spec-03-trade-order.md
-    │   ├── (待生成) design-spec-04-order-management.md
-    │   ├── (待生成) design-spec-05-assets.md
-    │   ├── (待生成) design-spec-06-deposit-withdraw.md
-    │   ├── (待生成) design-spec-07-onboarding.md
-    │   └── (待生成) design-spec-08-binance-diff.md
+    ├── design-specs/                 ← Phase 1.5 输出：像素级设计规范 (已完成 ✅)
+    │   ├── design-spec-01-market-discovery.md     ← ✅ 行情/发现 (14KB)
+    │   ├── design-spec-02-trading.md              ← ✅ 交易/K线/下单 (13KB)
+    │   ├── design-spec-03-assets-deposit-withdraw.md ← ✅ 资产/充提 (14KB)
+    │   ├── design-spec-04-onboarding-login.md     ← ✅ 开户/登录/验证 (28KB)
+    │   ├── design-spec-05-home-navigation.md      ← ✅ 首页/导航/搜索 (35KB)
+    │   ├── design-spec-06-earn-grow.md            ← ✅ 理财/Earn/结构化产品 (31KB)
+    │   ├── design-spec-07-p2p-convert-copy.md     ← ✅ P2P/兑换/跟单/机器人 (13KB)
+    │   └── design-spec-08-settings-security.md    ← ✅ 设置/安全/手续费 (26KB)
     ├── design-decisions/             ← Phase 2 输出：设计决策
     │   ├── (待生成) zr-design-decisions.md
     │   └── (待生成) zr-design-system.md
@@ -168,8 +170,11 @@ Phase 1 OKX全量分析已完成 (`okx-complete-analysis.md`)
 ### 已完成
 - ✅ Skill 1 (`zr-competitive-design-analysis`) 已更新，引用全量分析
 - ✅ Skill 2 (`zr-v0-prompt-generator`) 已更新，融合OKX设计tokens
-- ✅ v0 Prompt引用文件已扩展到8个模块全覆盖 (原3个→现7个+映射表)
-- ✅ 新增模块: 开户/登录、设置/安全、理财/Earn、委托管理
+- ✅ v0 Prompt引用文件已扩展到9个模块全覆盖 (原3个→现9个+映射表)
+- ✅ 新增模块: 开户/登录、设置/安全、理财/Earn、委托管理、P2P/兑换/跟单
+- ✅ 所有v0 Prompt文件已增加像素级design tokens表 (从design-spec提取)
+- ✅ 8份design-spec深度像素分析文档已完成 (共174KB):
+  - 01-行情发现 | 02-交易 | 03-资产充提 | 04-开户登录 | 05-首页导航 | 06-理财Earn | 07-P2P兑换跟单 | 08-设置安全
 
 ### 下一步操作
 

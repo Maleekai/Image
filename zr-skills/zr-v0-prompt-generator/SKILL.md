@@ -251,7 +251,10 @@ Read the appropriate reference file for module-specific prompt details:
 - `references/v0-settings-prompts.md` — Settings, security, profile prompts (OKX Flows 056-073)
 - `references/v0-earn-prompts.md` — Earn, structured products, grow prompts (OKX Flows 026-031)
 - `references/v0-order-management-prompts.md` — Order management, history prompts (OKX Flows 020, 035-036)
+- `references/v0-p2p-convert-prompts.md` — P2P trading, convert, copy trading prompts (OKX Flows 018-024)
 - `references/flow-module-mapping.md` — Complete OKX/Binance flow → module mapping
+
+> **Note**: All v0 prompt reference files now include pixel-level "OKX Extracted Design Tokens" tables with precise hex colors, dimensions, font sizes, border radii, and spacing values extracted from design-spec analysis.
 
 ---
 

@@ -1,6 +1,28 @@
 # v0 Prompt Guide: Market & Discovery Module
 
 > Source: OKX Flows 003, 010-013, 015 | Extracted from full OKX analysis
+> Pixel Data: design-spec-01-market-discovery.md, design-spec-05-home-navigation.md
+
+## OKX Extracted Design Tokens (Market/Home)
+| Token | Value | Usage |
+|-------|-------|-------|
+| bg-primary | #FFFFFF | Page background (light mode) |
+| bg-dark | #000000 / #1A1A1A | Dark mode backgrounds |
+| text-primary | #000000 | Main text |
+| text-secondary | #808080 / #999999 | Secondary labels |
+| color-green | #00B366 / #22C55E | Buy/positive values |
+| color-red | #FF3B30 / #EF4444 | Sell/negative values |
+| color-lime | #C8FF00 / #84FF00 | Bonus badges, highlights |
+| tab-bar-height | 83px (includes safe area) | Bottom navigation |
+| nav-bar-height | 44px | Top navigation |
+| market-row-height | 64px | Market list item |
+| crypto-card | 358×84pt | Asset card in home |
+| icon-standard | 24px | Standard icons |
+| touch-target | 44×44px minimum | All interactive |
+| tab-crossfade | 300ms | Tab switching animation |
+| nav-slide | 400ms | Navigation transition |
+| tap-feedback | 0.05 alpha | Button tap opacity |
+| gray-scale | #F5F5F5, #E0E0E0, #CCCCCC, #999999, #666666 | 5 gray shades |
 > OKX Patterns: Discover page with horizontal category tabs (Opportunities/Rankings/Market Data), data-dense tables with live updating prices, mini sparkline charts in list rows, green/red coloring for change direction, star icon toggle for favorites, drag-to-reorder in edit mode, bottom sheet modal with search for currency filter.
 
 ## Key Screens to Generate

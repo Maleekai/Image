@@ -1,6 +1,28 @@
 # v0 Prompt Guide: Trading Module
 
 > Source: OKX Flows 014-017, 022, 025 | Extracted from full OKX analysis
+> Pixel Data: design-spec-02-trading.md, design-spec-07-p2p-convert-copy.md
+
+## OKX Extracted Design Tokens (Trading)
+| Token | Value | Usage |
+|-------|-------|-------|
+| bg-chart | #1A1A1A | Dark trading background |
+| color-buy | #22C55E / #1ABE5B | Buy button, green candles |
+| color-sell | #EF4444 / #FF6B6B | Sell button, red candles |
+| color-blue-accent | #0066FF / #1A73E8 | Info, links |
+| text-price-large | 48px bold SF Pro Mono | Large price display |
+| text-ticker | 20px bold, #FFFFFF | Pair name in header |
+| text-change-badge | 14px, rounded pill | 24h change indicator |
+| btn-standard | 343×48px, radius 8px | Standard action button |
+| btn-pill | full-width×56px, radius 28px | CTA pill button |
+| order-book-row | full-width × 28px | Order book price level |
+| depth-bar-opacity | 20% of green/red | Order book depth bars |
+| chart-area | 40% viewport (~312px) | Candlestick chart zone |
+| ma7-color | #FF9500 (orange) | MA7 overlay line |
+| ma30-color | #0066FF (blue) | MA30 overlay line |
+| timeframe-tabs | 15m/1H/4H/1D/1W/1M | Chart period selectors |
+| modal-overlay | rgba(0,0,0,0.5) | Confirmation modal backdrop |
+| modal-radius | 16px | Modal card border radius |
 > OKX Patterns: Chart area ~40% screen height with MA overlays (MA7, MA30), time period tabs (15m/1h/4h/1D/More), order book split buy/sell with depth bars, order form with Buy/Sell toggle + order type dropdown + price/amount inputs + percentage quick-buttons, confirmation modal with TP/SL expandable section, convert interface with From/To swap.
 
 ## Key Screens to Generate
