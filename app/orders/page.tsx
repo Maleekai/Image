@@ -266,7 +266,7 @@ export default function OrdersPage() {
               { l: "手续费", v: detailTarget.fee ? `${detailTarget.fee} USDT` : "--" },
               { l: "时间", v: detailTarget.createdAt },
             ].map((row) => (
-              <div key={row.l} className="flex items-center justify-between py-1 border-b border-border/50">
+              <div key={row.l} className="flex items-center justify-between py-1 border-b border-border">
                 <span className="text-text-secondary">{row.l}</span>
                 <span className="font-mono tabular-nums text-foreground">{row.v}</span>
               </div>

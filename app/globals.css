@@ -3,25 +3,25 @@
 @tailwind utilities;
 
 :root {
-  /* Background */
+  /* Background - raw hex (no opacity modifier needed) */
   --bg-primary: #0B0B0E;
   --bg-secondary: #131318;
   --bg-tertiary: #1A1A22;
 
-  /* Text */
+  /* Text - raw hex (no opacity modifier needed) */
   --text-primary: #FFFFFF;
   --text-secondary: #8E8E93;
   --text-tertiary: #5A5A5E;
 
-  /* Brand */
-  --brand-blue: #1A73E8;
+  /* Brand - RGB triplet (supports opacity modifiers) */
+  --brand-blue: 26 115 232;
   --brand-blue-hover: #1565C0;
 
-  /* Semantic: Rise / Fall */
-  --rise: #0ECB81;
-  --fall: #F6465D;
-  --rise-bg: rgba(14, 203, 129, 0.12);
-  --fall-bg: rgba(246, 70, 93, 0.12);
+  /* Semantic: Rise / Fall - RGB triplet (supports opacity modifiers) */
+  --rise: 14 203 129;
+  --fall: 246 70 93;
+  --rise-hex: #0ECB81;
+  --fall-hex: #F6465D;
 
   /* Exchange Colors */
   --exchange-hashkey: #2962FF;
@@ -29,13 +29,12 @@
   --exchange-osl: #FF6D00;
   --exchange-vdx: #7C4DFF;
 
-  /* Warning */
-  --warning: #FFB300;
-  --warning-bg: rgba(255, 179, 0, 0.12);
+  /* Warning - RGB triplet */
+  --warning: 255 179 0;
 
-  /* Border */
-  --border: #1E1E26;
-  --border-light: #2A2A34;
+  /* Border - RGB triplet (supports opacity modifiers) */
+  --border: 30 30 38;
+  --border-light: 42 42 52;
 
   /* Radius */
   --radius-sm: 6px;
@@ -86,18 +85,18 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Rise/Fall text utilities */
-.text-rise {
-  color: var(--rise);
+/* Rise/Fall text utilities (hex for inline styles) */
+.text-rise-hex {
+  color: var(--rise-hex);
 }
-.text-fall {
-  color: var(--fall);
+.text-fall-hex {
+  color: var(--fall-hex);
 }
-.bg-rise {
-  background-color: var(--rise);
+.bg-rise-hex {
+  background-color: var(--rise-hex);
 }
-.bg-fall {
-  background-color: var(--fall);
+.bg-fall-hex {
+  background-color: var(--fall-hex);
 }
 
 /* Safe area bottom padding */
@@ -127,4 +126,13 @@ body {
 }
 .animate-pulse-price {
   animation: pulse-price 0.4s ease-in-out;
+}
+
+/* No scrollbar utility */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

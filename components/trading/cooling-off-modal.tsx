@@ -93,7 +93,7 @@ export function CoolingOffModal({
             className={
               canConfirm
                 ? "flex-1 py-3 rounded-md bg-fall text-foreground font-semibold text-sm"
-                : "flex-1 py-3 rounded-md bg-fall/30 text-foreground/50 font-semibold text-sm cursor-not-allowed"
+                : "flex-1 py-3 rounded-md bg-fall/30 text-text-secondary font-semibold text-sm cursor-not-allowed"
             }
           >
             {canConfirm ? "确认下单" : `等待 ${countdown}s`}

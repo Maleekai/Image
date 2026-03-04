@@ -27,7 +27,7 @@ export function Sparkline({
     })
     .join(" ");
 
-  const color = positive ? "var(--rise)" : "var(--fall)";
+  const color = positive ? "#0ECB81" : "#F6465D";
 
   return (
     <svg

@@ -20,7 +20,7 @@ export function MarketRow({ item }: MarketRowProps) {
   return (
     <Link
       href={`/symbol/${item.id}`}
-      className="flex items-center gap-3 px-4 py-3 active:bg-bg-secondary/50 transition-colors"
+      className="flex items-center gap-3 px-4 py-3 active:bg-[rgba(19,19,24,0.5)] transition-colors"
     >
       {/* Coin Icon */}
       <div

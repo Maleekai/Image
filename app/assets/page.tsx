@@ -189,7 +189,7 @@ export default function AssetsPage() {
             return (
               <div
                 key={holding.id}
-                className="flex items-center gap-3 py-3 border-b border-border/50"
+                className="flex items-center gap-3 py-3 border-b border-border"
               >
                 {/* Icon */}
                 <div

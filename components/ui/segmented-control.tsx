@@ -39,7 +39,7 @@ export function SegmentedControl<T extends string>({
               size === "md" && "text-sm px-3 py-1.5",
               active
                 ? "bg-bg-tertiary text-foreground shadow-sm"
-                : "text-text-secondary hover:text-text-secondary/80"
+                : "text-text-secondary hover:text-foreground"
             )}
           >
             {opt.label}

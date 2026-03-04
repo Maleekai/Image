@@ -13,7 +13,7 @@ export function MobileShell({ children, className }: MobileShellProps) {
       <div
         className={cn(
           "relative w-[390px] h-[844px] bg-background rounded-[40px] overflow-hidden",
-          "border border-border-light/30 shadow-[0_0_60px_rgba(0,0,0,0.8)]",
+          "border border-[rgba(42,42,52,0.3)] shadow-[0_0_60px_rgba(0,0,0,0.8)]",
           "flex flex-col",
           className
         )}

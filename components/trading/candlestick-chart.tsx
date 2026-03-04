@@ -29,7 +29,7 @@ export function CandlestickChart({ data, className }: CandlestickChartProps) {
     ...d,
     isGreen: d.close >= d.open,
     value: d.close,
-    fillColor: d.close >= d.open ? "var(--rise)" : "var(--fall)",
+    fillColor: d.close >= d.open ? "#0ECB81" : "#F6465D",
   }));
 
   return (
@@ -58,39 +58,39 @@ export function CandlestickChart({ data, className }: CandlestickChartProps) {
           <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
             <defs>
               <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--rise)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="var(--rise)" stopOpacity={0} />
+                <stop offset="5%" stopColor="#0ECB81" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#0ECB81" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
               dataKey="time"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 9, fill: "var(--text-tertiary)" }}
+              tick={{ fontSize: 9, fill: "#5A5A5E" }}
               interval={Math.floor(data.length / 5)}
             />
             <YAxis
               domain={["auto", "auto"]}
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 9, fill: "var(--text-tertiary)" }}
+              tick={{ fontSize: 9, fill: "#5A5A5E" }}
               width={48}
               orientation="right"
             />
             <Tooltip
               contentStyle={{
-                background: "var(--bg-tertiary)",
-                border: "1px solid var(--border)",
+                background: "#1A1A22",
+                border: "1px solid rgb(30 30 38)",
                 borderRadius: 8,
                 fontSize: 11,
-                color: "var(--text-primary)",
+                color: "#FFFFFF",
               }}
-              labelStyle={{ color: "var(--text-secondary)", fontSize: 10 }}
+              labelStyle={{ color: "#8E8E93", fontSize: 10 }}
             />
             <Area
               type="monotone"
               dataKey="close"
-              stroke="var(--rise)"
+              stroke="#0ECB81"
               strokeWidth={1.5}
               fill="url(#chartGradient)"
             />
@@ -104,7 +104,7 @@ export function CandlestickChart({ data, className }: CandlestickChartProps) {
           <BarChart data={chartData} margin={{ top: 0, right: 4, bottom: 0, left: 4 }}>
             <Bar
               dataKey="volume"
-              fill="var(--text-tertiary)"
+              fill="#5A5A5E"
               opacity={0.4}
               radius={[1, 1, 0, 0]}
             />

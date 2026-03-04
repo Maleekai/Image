@@ -153,7 +153,7 @@ export default function SymbolPage({
               });
               return (
                 <div key={i} className="flex items-center text-xs py-0.5">
-                  <span className="flex-1 font-mono tabular-nums" style={{ color: isBuy ? "var(--rise)" : "var(--fall)" }}>
+                  <span className="flex-1 font-mono tabular-nums" style={{ color: isBuy ? "#0ECB81" : "#F6465D" }}>
                     {formatPrice(price, decimals)}
                   </span>
                   <span className="w-20 text-right font-mono tabular-nums text-text-secondary">
