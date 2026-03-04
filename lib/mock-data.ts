@@ -10,10 +10,10 @@ export interface Exchange {
 }
 
 export const EXCHANGES: Record<ExchangeId, Exchange> = {
-  hashkey: { id: "hashkey", name: "HashKey", color: "#6366F1", assets: 45678, status: "active" },
-  bullish: { id: "bullish", name: "Bullish", color: "#F59E0B", assets: 12345, status: "active" },
-  osl: { id: "osl", name: "OSL", color: "#06B6D4", assets: 8901, status: "active" },
-  vdx: { id: "vdx", name: "VDX", color: "#EC4899", assets: 3456, status: "maintenance" },
+  hashkey: { id: "hashkey", name: "HashKey", color: "#2962FF", assets: 45678, status: "active" },
+  bullish: { id: "bullish", name: "Bullish", color: "#00BFA5", assets: 12345, status: "active" },
+  osl: { id: "osl", name: "OSL", color: "#FF6D00", assets: 8901, status: "active" },
+  vdx: { id: "vdx", name: "VDX", color: "#7C4DFF", assets: 3456, status: "maintenance" },
 };
 
 // ========== Asset Class ==========

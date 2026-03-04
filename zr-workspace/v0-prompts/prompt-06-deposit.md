@@ -1,0 +1,129 @@
+# Deposit Page -- ZR Securities Trading App
+
+> This prompt generates the crypto deposit page with network selection, QR code, and address display.
+
+## Context
+Safety-critical screen -- must prevent deposit errors that cause permanent fund loss. Design prioritizes clarity and error prevention above speed.
+
+**OKX Competitive Analysis Applied**: Adopted QR code + copy address pattern (DA-011), network selector with recommended badge (DA-012). Enhanced with prominent wrong-network warning, exchange routing indicator, and SFC compliance notices.
+
+## Page Layout
+
+### Zone 1: Nav Bar (44px)
+- Left: Back arrow, Right: Deposit history icon
+- Center: "Deposit" (18px semibold)
+
+### Zone 2: Coin Selector (80px)
+- Large tappable button showing selected coin
+- Layout: [32px BTC icon] + "Bitcoin (BTC)" (15px semibold) + Chevron down icon
+- Background: bg-secondary, rounded-xl, mx-16, p-16
+- Tapping opens coin selection bottom sheet with search + popular coins grid
+
+### Zone 3: Network Selector (variable, ~120px)
+- Label: "Select Network" (13px, text-secondary)
+- Radio button list of available networks:
+```
+┌────────────────────────────────────────┐
+│ ○ Bitcoin (BTC)          Recommended  │
+│   Fee: Free | ~30 min                  │
+├────────────────────────────────────────┤
+│ ○ BNB Smart Chain (BEP20)             │
+│   Fee: Free | ~5 min                   │
+├────────────────────────────────────────┤
+│ ○ Ethereum (ERC20)                     │
+│   Fee: Free | ~15 min                  │
+└────────────────────────────────────────┘
+```
+- Selected: brand-blue radio dot + brand-blue border-left
+- "Recommended" badge: bg-success/20, text-success, 10px, rounded
+- Each option: bg-secondary, py-12, px-16
+- **From OKX 179**: Same pattern with recommended badge (DA-012)
+
+### Zone 4: Exchange Routing Indicator (40px) -- ZR UNIQUE
+- "Depositing to: [HashKey badge] HashKey Exchange" (13px)
+- Small info icon explaining which exchange account receives the funds
+- bg-brand-blue/10, rounded-lg, mx-16, px-12, py-8
+
+### Zone 5: QR Code + Address (240px)
+- QR code: 160x160px, centered, white bg with 16px padding, rounded-xl
+- Below QR: Full address in JetBrains Mono (13px, text-primary)
+  - Wrapping allowed, center-aligned
+  - "bc1q...xyz" format
+- Copy button: Full-width, bg-secondary, rounded-lg, mx-16, py-12
+  - Icon: Copy icon + "Copy Address" text
+  - On tap: Text changes to "Copied!" (text-success) for 2 seconds
+- Share button: Below copy, outlined, same width
+  - Icon: Share icon + "Share Address"
+
+### Zone 6: Important Notices (variable)
+- Warning card: bg-warning/10, border-l-4 border-warning, rounded-lg, mx-16, p-16
+```
+⚠ Important Notices:
+• Minimum deposit: 0.0001 BTC
+• Required confirmations: 2
+• Expected arrival: ~30 minutes
+• Only send BTC to this address. Sending other assets
+  will result in permanent loss.
+```
+- Each bullet: 13px, text-secondary, warning icon colored #FFB300
+- "permanent loss" text in text-danger for emphasis
+
+### Zone 7: Deposit History Link
+- Text button: "View Deposit History >" (13px, brand-blue)
+- Right-aligned, mx-16
+
+## Coin Selection Bottom Sheet
+```
+┌────────────────────────────────────────┐
+│ Select Coin                            │
+│ ┌────────────────────────────────────┐│
+│ │ 🔍 Search coins...                 ││
+│ └────────────────────────────────────┘│
+│                                        │
+│ Popular                                │
+│ [BTC] [ETH] [USDT] [SOL] [XRP]       │
+│                                        │
+│ All Coins                              │
+│ BTC  Bitcoin           Balance: 1.5   │
+│ ETH  Ethereum          Balance: 12.5  │
+│ USDT Tether            Balance: 15000 │
+│ SOL  Solana            Balance: 50    │
+│ ...                                    │
+└────────────────────────────────────────┘
+```
+
+## Mock Data
+```javascript
+const depositData = {
+  selectedCoin: { symbol: "BTC", name: "Bitcoin", icon: "btc" },
+  networks: [
+    { id: "btc", name: "Bitcoin (BTC)", fee: "Free", time: "~30 min", recommended: true },
+    { id: "bep20", name: "BNB Smart Chain (BEP20)", fee: "Free", time: "~5 min", recommended: false },
+    { id: "erc20", name: "Ethereum (ERC20)", fee: "Free", time: "~15 min", recommended: false },
+  ],
+  address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+  exchange: "HashKey",
+  minDeposit: "0.0001 BTC",
+  confirmations: 2,
+};
+```
+
+## Interactions
+- **Tap coin selector**: Open bottom sheet with coin search
+- **Select coin**: Update network options and address
+- **Select network**: Update address + QR code + notices
+- **Tap Copy Address**: Copy to clipboard, show "Copied!" feedback
+- **Tap Share**: Open native share sheet (simulated)
+- **Tap Deposit History**: Navigate to deposit history page
+- **Tap back**: Return to /assets
+
+## States
+- [x] Default (BTC selected, Bitcoin network, address displayed)
+- [x] Coin selection bottom sheet
+- [x] Network selection states
+- [x] Copied feedback state
+- [x] Loading (generating address spinner)
+
+---
+
+*Generated by ZR v0 Prompt Generator Skill v1.0 -- Based on OKX flow 033_Deposit_crypto*

@@ -23,6 +23,16 @@
   --rise-bg: rgba(14, 203, 129, 0.12);
   --fall-bg: rgba(246, 70, 93, 0.12);
 
+  /* Exchange Colors */
+  --exchange-hashkey: #2962FF;
+  --exchange-bullish: #00BFA5;
+  --exchange-osl: #FF6D00;
+  --exchange-vdx: #7C4DFF;
+
+  /* Warning */
+  --warning: #FFB300;
+  --warning-bg: rgba(255, 179, 0, 0.12);
+
   /* Border */
   --border: #1E1E26;
   --border-light: #2A2A34;

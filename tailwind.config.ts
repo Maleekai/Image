@@ -20,6 +20,8 @@ const config: Config = {
         fall: "var(--fall)",
         "rise-bg": "var(--rise-bg)",
         "fall-bg": "var(--fall-bg)",
+        warning: "var(--warning)",
+        "warning-bg": "var(--warning-bg)",
         border: "var(--border)",
         "border-light": "var(--border-light)",
       },
