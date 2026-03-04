@@ -1,32 +1,10 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import { Signal, Wifi, Battery } from "lucide-react";
 
 export function StatusBar() {
-  const [mounted, setMounted] = useState(false);
-  const [time, setTime] = useState("9:41");
-
-  useEffect(() => {
-    setMounted(true);
-    const update = () => {
-      setTime(
-        new Date().toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: false,
-        })
-      );
-    };
-    update();
-    const id = setInterval(update, 60_000);
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <div className="flex items-center justify-between px-6 h-[44px] bg-background">
-      <span className="text-sm font-semibold font-sans text-foreground" suppressHydrationWarning>
-        {mounted ? time : "9:41"}
+      <span className="text-sm font-semibold font-sans text-foreground">
+        9:41
       </span>
       <div className="flex items-center gap-1.5">
         <Signal className="w-4 h-4 text-foreground" />
