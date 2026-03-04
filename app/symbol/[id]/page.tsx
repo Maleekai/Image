@@ -141,16 +141,17 @@ export default function SymbolPage({
         ) : (
           <div className="px-4 space-y-1">
             {Array.from({ length: 15 }).map((_, i) => {
-              const isBuy = Math.random() > 0.5;
-              const price = item.price + (Math.random() - 0.5) * item.price * 0.002;
-              const amount = (Math.random() * 2 + 0.01).toFixed(4);
-              const time = new Date(
-                Date.now() - i * 15000
-              ).toLocaleTimeString("en", {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-              });
+              const seed = (i * 16807 + 7) % 2147483647;
+              const r1 = ((seed * 16807) % 2147483647 - 1) / 2147483646;
+              const r2 = (((seed * 16807 * 16807) % 2147483647) - 1) / 2147483646;
+              const r3 = (((seed * 16807 * 16807 * 16807) % 2147483647) - 1) / 2147483646;
+              const isBuy = r1 > 0.5;
+              const price = item.price + (r2 - 0.5) * item.price * 0.002;
+              const amount = (r3 * 2 + 0.01).toFixed(4);
+              const h = (14 - Math.floor(i / 4)) % 24;
+              const m = (i * 17) % 60;
+              const s = (i * 43) % 60;
+              const time = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
               return (
                 <div key={i} className="flex items-center text-xs py-0.5">
                   <span className="flex-1 font-mono tabular-nums" style={{ color: isBuy ? "#0ECB81" : "#F6465D" }}>

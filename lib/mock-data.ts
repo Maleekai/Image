@@ -16,6 +16,17 @@ export const EXCHANGES: Record<ExchangeId, Exchange> = {
   vdx: { id: "vdx", name: "VDX", color: "#7C4DFF", assets: 3456, status: "maintenance" },
 };
 
+// ========== Seeded PRNG (deterministic across server/client) ==========
+function createSeededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 16807 + 0) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+const seeded = createSeededRandom(42);
+
 // ========== Asset Class ==========
 export type AssetClass = "crypto" | "hk_stock" | "us_stock" | "forex";
 
@@ -46,7 +57,7 @@ function generateSparkline(base: number, volatility: number, trend: number): num
   const points: number[] = [];
   let current = base * (1 - volatility * 2);
   for (let i = 0; i < 24; i++) {
-    current += (Math.random() - 0.5 + trend * 0.1) * base * volatility;
+    current += (seeded() - 0.5 + trend * 0.1) * base * volatility;
     current = Math.max(current, base * 0.85);
     points.push(current);
   }
@@ -101,7 +112,7 @@ export function generateOrderBook(midPrice: number, decimals = 2): {
 
   for (let i = 0; i < 10; i++) {
     const askPrice = midPrice + spread * (i + 1);
-    const askAmount = parseFloat((Math.random() * 2 + 0.1).toFixed(4));
+    const askAmount = parseFloat((seeded() * 2 + 0.1).toFixed(4));
     askTotal += askAmount;
     asks.push({
       price: parseFloat(askPrice.toFixed(decimals)),
@@ -110,7 +121,7 @@ export function generateOrderBook(midPrice: number, decimals = 2): {
     });
 
     const bidPrice = midPrice - spread * (i + 1);
-    const bidAmount = parseFloat((Math.random() * 2 + 0.1).toFixed(4));
+    const bidAmount = parseFloat((seeded() * 2 + 0.1).toFixed(4));
     bidTotal += bidAmount;
     bids.push({
       price: parseFloat(bidPrice.toFixed(decimals)),
@@ -135,19 +146,17 @@ export interface CandleData {
 export function generateCandleData(base: number, count = 30): CandleData[] {
   const data: CandleData[] = [];
   let current = base * 0.95;
-  const now = Date.now();
+  const baseTime = 1710500000000; // fixed timestamp to avoid hydration mismatch
 
   for (let i = 0; i < count; i++) {
-    const change = (Math.random() - 0.48) * base * 0.02;
+    const change = (seeded() - 0.48) * base * 0.02;
     const open = current;
     const close = current + change;
-    const high = Math.max(open, close) + Math.random() * base * 0.008;
-    const low = Math.min(open, close) - Math.random() * base * 0.008;
-    const volume = Math.random() * 1000 + 100;
-    const time = new Date(now - (count - i) * 3600000).toLocaleTimeString("en", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const high = Math.max(open, close) + seeded() * base * 0.008;
+    const low = Math.min(open, close) - seeded() * base * 0.008;
+    const volume = seeded() * 1000 + 100;
+    const d = new Date(baseTime - (count - i) * 3600000);
+    const time = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 
     data.push({
       time,

@@ -155,15 +155,18 @@ export default function DepositPage() {
           {/* Simulated QR Code */}
           <div className="w-40 h-40 bg-foreground rounded-lg flex items-center justify-center mb-3">
             <div className="grid grid-cols-8 gap-0.5 w-32 h-32">
-              {Array.from({ length: 64 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-full aspect-square rounded-[1px]",
-                    Math.random() > 0.45 ? "bg-background" : "bg-foreground"
-                  )}
-                />
-              ))}
+              {Array.from({ length: 64 }).map((_, i) => {
+                const v = ((i * 16807 + 31) % 100);
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      "w-full aspect-square rounded-[1px]",
+                      v > 45 ? "bg-background" : "bg-foreground"
+                    )}
+                  />
+                );
+              })}
             </div>
           </div>
 
