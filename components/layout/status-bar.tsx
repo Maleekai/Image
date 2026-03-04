@@ -1,14 +1,25 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Signal, Wifi, Battery } from "lucide-react";
 
 export function StatusBar() {
-  const now = new Date();
-  const time = now.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: false,
-  });
+  const [time, setTime] = useState("9:41");
+
+  useEffect(() => {
+    const update = () => {
+      setTime(
+        new Date().toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: false,
+        })
+      );
+    };
+    update();
+    const id = setInterval(update, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="flex items-center justify-between px-6 h-[44px] bg-background">
