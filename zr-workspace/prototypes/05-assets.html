@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — 资产总览</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--brand-blue:#1A73E8;--success:#00C853;--error:#FF1744;--warning:#FFB300;--bg-primary:#FFF;--bg-secondary:#F5F5F5;--text-primary:#212121;--text-secondary:#757575;--text-tertiary:#BDBDBD;--border:#E0E0E0;--divider:#F0F0F0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;background:#F5F5F5;max-width:390px;margin:0 auto}
+.mono{font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState}=React;
+
+const mockAssets=[
+  {id:'btc',name:'Bitcoin',code:'BTC',type:'加密',exchange:'HashKey',balance:0.5,valueHKD:250000,change:5.2},
+  {id:'eth',name:'Ethereum',code:'ETH',type:'加密',exchange:'HashKey',balance:5.25,valueHKD:187500,change:3.8},
+  {id:'usdt',name:'Tether',code:'USDT',type:'加密',exchange:'Bullish',balance:50000,valueHKD:390625,change:0.01},
+  {id:'aapl',name:'Apple Inc.',code:'AAPL',type:'股票',exchange:'OSL',balance:100,valueHKD:156250,change:-2.1},
+  {id:'tsla',name:'Tesla Inc.',code:'TSLA',type:'股票',exchange:'VDX',balance:50,valueHKD:96875,change:-0.8},
+  {id:'eurusd',name:'EUR/USD',code:'EUR/USD',type:'外汇',exchange:'VDX',balance:50000,valueHKD:390625,change:1.5},
+  {id:'gold',name:'Gold',code:'GOLD',type:'商品',exchange:'OSL',balance:5,valueHKD:81250,change:0.72},
+  {id:'sol',name:'Solana',code:'SOL',type:'加密',exchange:'Bullish',balance:120,valueHKD:13500,change:-4.2},
+  {id:'dust1',name:'Shiba',code:'SHIB',type:'加密',exchange:'HashKey',balance:100000,valueHKD:5.2,change:-12},
+];
+
+const mockExchanges=[
+  {name:'HashKey',status:'active',total:437505.2,count:3,color:'#2962FF',bg:'#E8EEFF'},
+  {name:'Bullish',status:'active',total:404125,count:2,color:'#00BFA5',bg:'#E0F7F0'},
+  {name:'OSL',status:'active',total:237500,count:2,color:'#FF6D00',bg:'#FFF3E0'},
+  {name:'VDX',status:'maintenance',total:487500,count:2,color:'#7C4DFF',bg:'#EDE7F6'},
+];
+
+function ExBadge({name}){
+  const m={HashKey:{bg:'#E8EEFF',c:'#2962FF'},Bullish:{bg:'#E0F7F0',c:'#00BFA5'},OSL:{bg:'#FFF3E0',c:'#FF6D00'},VDX:{bg:'#EDE7F6',c:'#7C4DFF'}};
+  const s=m[name]||m.HashKey;
+  return <span style={{display:'inline-flex',alignItems:'center',height:18,padding:'0 6px',borderRadius:9,background:s.bg,color:s.c,fontSize:10,fontWeight:600}}>{name}</span>;
+}
+
+function TabBar({active=4}){
+  const items=[{l:'首页',i:'🏠'},{l:'行情',i:'📊'},{l:'交易',i:'💱'},{l:'资产',i:'💰'},{l:'更多',i:'⋯'}];
+  return(
+    <div style={{display:'flex',height:83,background:'#FFF',borderTop:'1px solid #F0F0F0',paddingBottom:34}}>
+      {items.map((t,i)=>(
+        <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,color:i===3?'#1A73E8':'#BDBDBD',cursor:'pointer'}}>
+          <span style={{fontSize:22}}>{t.i}</span>
+          <span style={{fontSize:11,fontWeight:500}}>{t.l}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function App(){
+  const[hidden,setHidden]=useState(false);
+  const[currency,setCurrency]=useState('HKD');
+  const[assetTab,setAssetTab]=useState('全部');
+  const[hideDust,setHideDust]=useState(false);
+  const[sortBy,setSortBy]=useState('value');
+
+  const totalHKD=mockAssets.reduce((s,a)=>s+a.valueHKD,0);
+  const totalPnL=12345;
+  const pnlPct=1.02;
+
+  const currencyRates={HKD:1,USD:0.1275,BTC:0.0000000261};
+  const currencySymbols={HKD:'HK$',USD:'US$',BTC:'₿'};
+  const fmtVal=(v)=>{
+    const converted=v*currencyRates[currency];
+    if(currency==='BTC')return converted.toFixed(8);
+    return converted.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  };
+
+  const assetTabs=['全部','加密','股票','外汇','商品'];
+  let filtered=mockAssets.filter(a=>{
+    if(assetTab!=='全部'&&a.type!==assetTab)return false;
+    if(hideDust&&a.valueHKD<10)return false;
+    return true;
+  });
+  if(sortBy==='value')filtered.sort((a,b)=>b.valueHKD-a.valueHKD);
+  else if(sortBy==='change')filtered.sort((a,b)=>b.change-a.change);
+  else filtered.sort((a,b)=>a.name.localeCompare(b.name));
+
+  const mask='••••••';
+
+  return(
+    <div style={{background:'#F5F5F5',minHeight:'100vh',paddingBottom:83}}>
+      <div style={{height:59,background:'#FFF'}}/>
+      {/* Header */}
+      <div style={{height:44,background:'#FFF',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',borderBottom:'1px solid #F0F0F0'}}>
+        <span style={{fontSize:18,fontWeight:700}}>资产</span>
+        <div style={{display:'flex',gap:12}}>
+          <div onClick={()=>setHidden(!hidden)} style={{width:32,height:32,borderRadius:8,background:'#F5F5F5',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:16}}>{hidden?'🙈':'👁'}</div>
+          <div style={{width:32,height:32,borderRadius:8,background:'#F5F5F5',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:16}}>⚙</div>
+        </div>
+      </div>
+
+      {/* Total Value Card */}
+      <div style={{margin:16,background:'#FFF',borderRadius:12,padding:20,borderBottom:'2px solid '+(totalPnL>=0?'#00C853':'#FF1744')}}>
+        <div style={{fontSize:13,color:'#757575',marginBottom:4}}>总资产</div>
+        <div style={{fontSize:28,fontWeight:700,fontFamily:'JetBrains Mono',color:'#212121',marginBottom:8}}>
+          {hidden?mask:currencySymbols[currency]+' '+fmtVal(totalHKD)}
+        </div>
+        {/* Currency toggle */}
+        <div style={{display:'flex',gap:6,marginBottom:12}}>
+          {['HKD','USD','BTC'].map(c=>(
+            <button key={c} onClick={()=>setCurrency(c)} style={{
+              height:28,padding:'0 12px',borderRadius:14,border:'none',fontSize:12,fontWeight:600,cursor:'pointer',
+              background:currency===c?'#1A73E8':'#F5F5F5',color:currency===c?'#FFF':'#757575'
+            }}>{c}</button>
+          ))}
+        </div>
+        {/* PnL */}
+        <div style={{fontSize:14,fontFamily:'JetBrains Mono',fontWeight:600,color:totalPnL>=0?'#00C853':'#FF1744'}}>
+          {hidden?mask:(totalPnL>=0?'+':'')+currencySymbols[currency]+' '+(totalPnL*currencyRates[currency]).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ('+(totalPnL>=0?'+':'')+pnlPct.toFixed(2)+'%)'}
+          <span style={{fontSize:11,color:'#BDBDBD',fontWeight:400,marginLeft:6}}>24h</span>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div style={{display:'flex',gap:12,padding:'0 16px',marginBottom:16}}>
+        {[{l:'充值',i:'⬇'},{l:'提币',i:'⬆'},{l:'划转',i:'↔'},{l:'兑换',i:'🔄'}].map(a=>(
+          <div key={a.l} style={{flex:1,height:56,background:'#FFF',borderRadius:8,border:'1px solid #E0E0E0',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:4,cursor:'pointer'}}>
+            <span style={{fontSize:18}}>{a.i}</span>
+            <span style={{fontSize:12,fontWeight:500,color:'#757575'}}>{a.l}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Exchange Summary */}
+      <div style={{padding:'0 16px',marginBottom:16}}>
+        <div style={{fontSize:13,fontWeight:600,color:'#757575',marginBottom:8}}>交易所</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {mockExchanges.map(ex=>(
+            <div key={ex.name} style={{background:'#FFF',borderRadius:8,padding:12,border:'1px solid #F0F0F0',opacity:ex.status==='maintenance'?0.6:1,cursor:'pointer'}}>
+              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>
+                <div style={{width:28,height:28,borderRadius:'50%',background:ex.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:ex.color}}>{ex.name.charAt(0)}</div>
+                <div>
+                  <div style={{fontSize:13,fontWeight:600}}>{ex.name}</div>
+                  <span style={{fontSize:10,padding:'1px 6px',borderRadius:8,background:ex.status==='active'?'#E8F5E9':'#FFF8E1',color:ex.status==='active'?'#2E7D32':'#F57F17'}}>{ex.status==='active'?'正常':'维护中'}</span>
+                </div>
+              </div>
+              <div style={{fontSize:14,fontWeight:600,fontFamily:'JetBrains Mono'}}>
+                {hidden?mask:'HK$ '+ex.total.toLocaleString()}
+              </div>
+              <div style={{fontSize:11,color:'#BDBDBD'}}>{ex.count} 资产</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Asset Class Tabs */}
+      <div style={{display:'flex',gap:6,padding:'0 16px',marginBottom:8,overflowX:'auto'}}>
+        {assetTabs.map(t=>(
+          <button key={t} onClick={()=>setAssetTab(t)} style={{
+            height:32,padding:'0 14px',borderRadius:16,border:'none',fontSize:13,fontWeight:500,cursor:'pointer',whiteSpace:'nowrap',
+            background:assetTab===t?'#1A73E8':'#F0F0F0',color:assetTab===t?'#FFF':'#757575'
+          }}>{t}</button>
+        ))}
+      </div>
+
+      {/* Filter/Sort */}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 16px 8px'}}>
+        <label style={{display:'flex',alignItems:'center',gap:4,fontSize:12,color:'#757575',cursor:'pointer'}}>
+          <input type="checkbox" checked={hideDust} onChange={()=>setHideDust(!hideDust)} style={{accentColor:'#1A73E8'}}/>
+          隐藏小额 (&lt;$10)
+        </label>
+        <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{fontSize:12,border:'1px solid #E0E0E0',borderRadius:6,padding:'4px 8px',color:'#757575',background:'#FFF'}}>
+          <option value="value">按市值排序</option>
+          <option value="change">按涨跌排序</option>
+          <option value="name">按名称排序</option>
+        </select>
+      </div>
+
+      {/* Asset List */}
+      <div style={{background:'#FFF',borderRadius:'12px 12px 0 0',marginTop:4}}>
+        {filtered.length===0?(
+          <div style={{padding:40,textAlign:'center'}}>
+            <div style={{fontSize:36,marginBottom:12}}>📊</div>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:6}}>暂无资产</div>
+            <div style={{fontSize:13,color:'#757575'}}>开始交易来建立您的投资组合</div>
+          </div>
+        ):filtered.map((a,i)=>(
+          <div key={a.id} style={{display:'flex',alignItems:'center',padding:'12px 16px',borderBottom:i<filtered.length-1?'1px solid #F5F5F5':'none',cursor:'pointer'}}>
+            <div style={{width:36,height:36,borderRadius:8,background:'#F0F0F0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#757575',marginRight:12,flexShrink:0}}>
+              {a.code.charAt(0)}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{display:'flex',alignItems:'center',gap:6}}>
+                <span style={{fontSize:14,fontWeight:600}}>{a.code}</span>
+                <ExBadge name={a.exchange}/>
+              </div>
+              <div style={{fontSize:12,color:'#9E9E9E'}}>{a.name}</div>
+            </div>
+            <div style={{textAlign:'right',marginRight:8}}>
+              <div style={{fontSize:14,fontFamily:'JetBrains Mono',fontWeight:600}}>
+                {hidden?mask:a.balance.toLocaleString()}
+              </div>
+              <div style={{fontSize:12,fontFamily:'JetBrains Mono',fontWeight:500,color:a.change>=0?'#00C853':'#FF1744'}}>
+                {a.change>=0?'+':''}{a.change.toFixed(2)}%
+              </div>
+            </div>
+            <div style={{textAlign:'right',minWidth:90}}>
+              <div style={{fontSize:13,fontWeight:600,fontFamily:'JetBrains Mono'}}>
+                {hidden?mask:'HK$ '+a.valueHKD.toLocaleString()}
+              </div>
+            </div>
+            <div style={{marginLeft:8,color:'#BDBDBD',fontSize:16}}>›</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom Tab Bar */}
+      <div style={{position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',width:390,zIndex:50}}>
+        <TabBar/>
+      </div>
+    </div>
+  );
+}
+ReactDOM.render(<App/>,document.getElementById('root'));
+</script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — 开户流程</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--brand-blue:#1A73E8;--success:#22C55E;--error:#EF4444}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:#FFF;max-width:390px;margin:0 auto}
+.mono{font-family:'JetBrains Mono',monospace}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect}=React;
+
+const exchangeData=[
+  {id:'hashkey',name:'HashKey',color:'#2962FF',bg:'#E8EEFF',desc:'持有香港SFC第1、7号牌照'},
+  {id:'bullish',name:'Bullish',color:'#00BFA5',bg:'#E0F7F0',desc:'机构级加密资产交易所'},
+  {id:'osl',name:'OSL',color:'#FF6D00',bg:'#FFF3E0',desc:'SFC持牌虚拟资产平台'},
+  {id:'vdx',name:'VDX',color:'#7C4DFF',bg:'#EDE7F6',desc:'新一代多资产交易平台'},
+];
+
+function ProgressBar({step,total}){
+  return(
+    <div style={{display:'flex',gap:4,padding:'12px 16px'}}>
+      {Array.from({length:total}).map((_,i)=>(
+        <div key={i} style={{flex:1,height:4,borderRadius:2,background:i<step?'#1A73E8':i===step?'#B3D4FC':'#E8E8E8',transition:'all 0.3s ease'}}/>
+      ))}
+    </div>
+  );
+}
+
+function OTPBoxes({onComplete}){
+  const[digits,setDigits]=useState(['','','','','','']);
+  const[active,setActive]=useState(0);
+  const handleKey=(i,e)=>{
+    const val=e.target.value;
+    if(/^\d$/.test(val)){
+      const nd=[...digits];nd[i]=val;setDigits(nd);
+      if(i<5)setActive(i+1);
+      if(nd.every(d=>d!==''))onComplete&&onComplete(nd.join(''));
+    }else if(e.nativeEvent.inputType==='deleteContentBackward'){
+      const nd=[...digits];nd[i]='';setDigits(nd);if(i>0)setActive(i-1);
+    }
+  };
+  return(
+    <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+      {digits.map((d,i)=>(
+        <input key={i} value={d} maxLength={1} onChange={e=>handleKey(i,e)} onFocus={()=>setActive(i)}
+          ref={el=>{if(el&&i===active)el.focus();}}
+          style={{width:52,height:52,borderRadius:8,textAlign:'center',
+            border:i===active?'2px solid #1A73E8':'1px solid #E0E0E0',
+            fontSize:20,fontFamily:'JetBrains Mono',fontWeight:600,outline:'none',color:'#212121'}}/>
+      ))}
+    </div>
+  );
+}
+
+/* ========= SCREENS ========= */
+
+// Screen 1: Welcome
+function WelcomeScreen({onNext}){
+  return(
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',animation:'fadeIn 0.4s ease'}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'0 32px',textAlign:'center'}}>
+        {/* Logo */}
+        <div style={{width:80,height:80,borderRadius:20,background:'#1A73E8',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:24,animation:'pulse 2s ease infinite'}}>
+          <span style={{fontSize:36,fontWeight:800,color:'#FFF'}}>ZR</span>
+        </div>
+        <div style={{fontSize:28,fontWeight:800,color:'#212121',marginBottom:8}}>卓锐证券</div>
+        <div style={{fontSize:15,color:'#757575',marginBottom:4}}>ZR Securities</div>
+        <div style={{fontSize:13,color:'#BDBDBD',marginBottom:40}}>香港SFC持牌 · 多市场多交易所</div>
+
+        {/* Features */}
+        <div style={{display:'flex',flexDirection:'column',gap:12,width:'100%',textAlign:'left',marginBottom:40}}>
+          {[
+            {icon:'🔒',title:'安全合规',desc:'SFC持牌，资产安全托管'},
+            {icon:'📊',title:'多市场交易',desc:'加密 · 股票 · 外汇 · 商品'},
+            {icon:'🏦',title:'多交易所',desc:'HashKey · Bullish · OSL · VDX'},
+          ].map((f,i)=>(
+            <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',background:'#F8F9FA',borderRadius:12}}>
+              <span style={{fontSize:24}}>{f.icon}</span>
+              <div>
+                <div style={{fontSize:14,fontWeight:600}}>{f.title}</div>
+                <div style={{fontSize:12,color:'#757575'}}>{f.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{padding:'0 16px 34px'}}>
+        <button onClick={onNext} style={{width:'100%',height:52,borderRadius:26,border:'none',background:'#1A73E8',color:'#FFF',fontSize:17,fontWeight:600,cursor:'pointer',marginBottom:12}}>
+          开始注册
+        </button>
+        <button onClick={()=>{}} style={{width:'100%',height:44,borderRadius:22,border:'1px solid #E0E0E0',background:'#FFF',color:'#212121',fontSize:15,fontWeight:500,cursor:'pointer'}}>
+          已有账户？登录
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Screen 2: Sign Up + Exchange Selection
+function SignUpScreen({onNext}){
+  const[email,setEmail]=useState('');
+  const[phone,setPhone]=useState('');
+  const[selected,setSelected]=useState(['hashkey']);
+  const[agreed,setAgreed]=useState(false);
+
+  const toggle=(id)=>{
+    setSelected(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
+  };
+  const canNext=email&&phone&&selected.length>0&&agreed;
+
+  return(
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',animation:'fadeIn 0.4s ease'}}>
+      <div style={{flex:1,padding:16}}>
+        <div style={{fontSize:22,fontWeight:700,marginBottom:4}}>创建账户</div>
+        <div style={{fontSize:13,color:'#757575',marginBottom:20}}>填写基本信息，开启投资之旅</div>
+
+        {/* Email */}
+        <div style={{marginBottom:16}}>
+          <div style={{fontSize:13,color:'#757575',marginBottom:4}}>邮箱地址</div>
+          <input value={email} onChange={e=>setEmail(e.target.value)} placeholder="your@email.com" type="email"
+            style={{width:'100%',height:48,padding:'0 12px',borderRadius:8,border:'1px solid #E0E0E0',fontSize:15,outline:'none'}}/>
+        </div>
+
+        {/* Phone */}
+        <div style={{marginBottom:20}}>
+          <div style={{fontSize:13,color:'#757575',marginBottom:4}}>手机号码</div>
+          <div style={{display:'flex',gap:8}}>
+            <div style={{width:80,height:48,borderRadius:8,border:'1px solid #E0E0E0',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:500,background:'#F5F5F5'}}>+852</div>
+            <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="9XXX XXXX" type="tel"
+              style={{flex:1,height:48,padding:'0 12px',borderRadius:8,border:'1px solid #E0E0E0',fontSize:15,outline:'none'}}/>
+          </div>
+        </div>
+
+        {/* Social Login */}
+        <div style={{display:'flex',gap:12,marginBottom:24}}>
+          {[{l:'Google',c:'#DB4437'},{l:'Apple',c:'#000'},{l:'WeChat',c:'#07C160'}].map(s=>(
+            <div key={s.l} style={{flex:1,height:44,borderRadius:8,border:'1px solid #E0E0E0',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:12,fontWeight:500,gap:4}}>
+              <div style={{width:20,height:20,borderRadius:'50%',background:s.c,display:'flex',alignItems:'center',justifyContent:'center',color:'#FFF',fontSize:10,fontWeight:700}}>{s.l.charAt(0)}</div>
+              {s.l}
+            </div>
+          ))}
+        </div>
+
+        {/* Exchange Selection */}
+        <div style={{fontSize:15,fontWeight:600,marginBottom:8}}>选择交易所</div>
+        <div style={{fontSize:12,color:'#757575',marginBottom:12}}>至少选择一个交易所开户（可稍后添加更多）</div>
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:20}}>
+          {exchangeData.map(ex=>(
+            <div key={ex.id} onClick={()=>toggle(ex.id)} style={{
+              display:'flex',alignItems:'center',padding:14,borderRadius:8,cursor:'pointer',
+              border:selected.includes(ex.id)?'2px solid '+ex.color:'1px solid #E0E0E0',
+              background:selected.includes(ex.id)?ex.bg:'#FFF'
+            }}>
+              <div style={{width:36,height:36,borderRadius:'50%',background:ex.bg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:ex.color,marginRight:12,border:'2px solid '+ex.color}}>{ex.name.charAt(0)}</div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:14,fontWeight:600}}>{ex.name}</div>
+                <div style={{fontSize:11,color:'#757575'}}>{ex.desc}</div>
+              </div>
+              <div style={{width:24,height:24,borderRadius:6,border:'2px solid '+(selected.includes(ex.id)?ex.color:'#BDBDBD'),display:'flex',alignItems:'center',justifyContent:'center'}}>
+                {selected.includes(ex.id)&&<div style={{width:14,height:14,borderRadius:3,background:ex.color}}/>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Terms */}
+        <label style={{display:'flex',alignItems:'flex-start',gap:8,marginBottom:16,cursor:'pointer'}}>
+          <input type="checkbox" checked={agreed} onChange={()=>setAgreed(!agreed)} style={{marginTop:3,accentColor:'#1A73E8'}}/>
+          <span style={{fontSize:12,color:'#757575',lineHeight:1.5}}>
+            我已阅读并同意 <span style={{color:'#1A73E8'}}>服务条款</span>、<span style={{color:'#1A73E8'}}>隐私政策</span> 及 <span style={{color:'#1A73E8'}}>风险披露声明</span>
+          </span>
+        </label>
+      </div>
+
+      <div style={{padding:'0 16px 34px'}}>
+        <button onClick={onNext} disabled={!canNext} style={{
+          width:'100%',height:52,borderRadius:26,border:'none',
+          background:canNext?'#1A73E8':'#E5E5EA',color:canNext?'#FFF':'#BDBDBD',
+          fontSize:17,fontWeight:600,cursor:canNext?'pointer':'default'
+        }}>下一步</button>
+      </div>
+    </div>
+  );
+}
+
+// Screen 3: OTP Verification
+function OTPScreen({onNext}){
+  const[countdown,setCountdown]=useState(60);
+  useEffect(()=>{
+    if(countdown<=0)return;
+    const t=setTimeout(()=>setCountdown(c=>c-1),1000);
+    return()=>clearTimeout(t);
+  },[countdown]);
+
+  return(
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',animation:'fadeIn 0.4s ease'}}>
+      <div style={{flex:1,padding:'40px 16px',textAlign:'center'}}>
+        <div style={{width:64,height:64,borderRadius:'50%',background:'#E8F0FE',margin:'0 auto 16px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28}}>✉</div>
+        <div style={{fontSize:20,fontWeight:700,marginBottom:8}}>输入验证码</div>
+        <div style={{fontSize:13,color:'#757575',marginBottom:32}}>验证码已发送至您的邮箱和手机</div>
+        <OTPBoxes onComplete={(code)=>{setTimeout(onNext,600);}}/>
+        <div style={{marginTop:20}}>
+          {countdown>0?
+            <span style={{fontSize:13,color:'#BDBDBD'}}>{countdown}s 后可重新发送</span>:
+            <span onClick={()=>setCountdown(60)} style={{fontSize:13,color:'#1A73E8',cursor:'pointer',fontWeight:600}}>重新发送验证码</span>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Screen 4: KYC (3-step)
+function KYCScreen({onNext}){
+  const[kycStep,setKycStep]=useState(0);
+  const[idType,setIdType]=useState('hkid');
+  const[name,setName]=useState('');
+  const[idNum,setIdNum]=useState('');
+  const[dob,setDob]=useState('');
+  const[uploaded,setUploaded]=useState({front:false,back:false,selfie:false});
+  const[riskLevel,setRiskLevel]=useState('');
+
+  // KYC Sub-step 0: Personal Info
+  if(kycStep===0){
+    const canNext=name&&idNum&&dob;
+    return(
+      <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',animation:'fadeIn 0.4s ease'}}>
+        <div style={{flex:1,padding:16}}>
+          <div style={{fontSize:20,fontWeight:700,marginBottom:4}}>身份认证 (KYC)</div>
+          <div style={{fontSize:13,color:'#757575',marginBottom:4}}>第 1/3 步 — 基本信息</div>
+          <ProgressBar step={0} total={3}/>
+
+          <div style={{marginTop:16,display:'flex',flexDirection:'column',gap:16}}>
+            <div>
+              <div style={{fontSize:13,color:'#757575',marginBottom:4}}>证件类型</div>
+              <div style={{display:'flex',gap:8}}>
+                {[{id:'hkid',l:'香港身份证'},{id:'passport',l:'护照'}].map(t=>(
+                  <button key={t.id} onClick={()=>setIdType(t.id)} style={{flex:1,height:40,borderRadius:8,border:idType===t.id?'2px solid #1A73E8':'1px solid #E0E0E0',background:idType===t.id?'#E8F0FE':'#FFF',fontSize:13,fontWeight:500,cursor:'pointer',color:idType===t.id?'#1A73E8':'#757575'}}>{t.l}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{fontSize:13,color:'#757575',marginBottom:4}}>姓名（与证件一致）</div>
+              <input value={name} onChange={e=>setName(e.target.value)} placeholder="请输入全名" style={{width:'100%',height:48,padding:'0 12px',borderRadius:8,border:'1px solid #E0E0E0',fontSize:15,outline:'none'}}/>
+            </div>
+            <div>
+              <div style={{fontSize:13,color:'#757575',marginBottom:4}}>证件号码</div>
+              <input value={idNum} onChange={e=>setIdNum(e.target.value)} placeholder={idType==='hkid'?'A1234567':'P1234567'} style={{width:'100%',height:48,padding:'0 12px',borderRadius:8,border:'1px solid #E0E0E0',fontSize:15,fontFamily:'JetBrains Mono',outline:'none'}}/>
+            </div>
+            <div>
+              <div style={{fontSize:13,color:'#757575',marginBottom:4}}>出生日期</div>
+              <input value={dob} onChange={e=>setDob(e.target.value)} type="date" style={{width:'100%',height:48,padding:'0 12px',borderRadius:8,border:'1px solid #E0E0E0',fontSize:15,outline:'none'}}/>
+            </div>
+          </div>
+        </div>
+        <div style={{padding:'0 16px 34px'}}>
+          <button onClick={()=>setKycStep(1)} disabled={!canNext} style={{width:'100%',height:52,borderRadius:26,border:'none',background:canNext?'#1A73E8':'#E5E5EA',color:canNext?'#FFF':'#BDBDBD',fontSize:17,fontWeight:600,cursor:canNext?'pointer':'default'}}>下一步</button>
+        </div>
+      </div>
+    );
+  }
+
+  // KYC Sub-step 1: Document Upload
+  if(kycStep===1){
+    const canNext=uploaded.front&&uploaded.back&&uploaded.selfie;
+    return(
+      <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',animation:'fadeIn 0.4s ease'}}>
+        <div style={{flex:1,padding:16}}>
+          <div style={{fontSize:20,fontWeight:700,marginBottom:4}}>身份认证 (KYC)</div>
+          <div style={{fontSize:13,color:'#757575',marginBottom:4}}>第 2/3 步 — 上传证件</div>
+          <ProgressBar step={1} total={3}/>
+
+          <div style={{marginTop:16,display:'flex',flexDirection:'column',gap:12}}>
+            {[
+              {key:'front',label:'证件正面',desc:'拍摄或上传证件正面照片'},
+              {key:'back',label:'证件背面',desc:'拍摄或上传证件背面照片'},
+              {key:'selfie',label:'自拍照',desc:'手持证件自拍，确保面部清晰'},
+            ].map(doc=>(
+              <div key={doc.key} onClick={()=>setUploaded(p=>({...p,[doc.key]:true}))} style={{
+                padding:16,borderRadius:12,border:'1px dashed '+(uploaded[doc.key]?'#22C55E':'#BDBDBD'),
+                background:uploaded[doc.key]?'#F0FFF4':'#FAFAFA',cursor:'pointer',textAlign:'center'
+              }}>
+                <div style={{fontSize:32,marginBottom:8}}>{uploaded[doc.key]?'✅':'📸'}</div>
+                <div style={{fontSize:14,fontWeight:600}}>{doc.label}</div>
+                <div style={{fontSize:12,color:'#757575'}}>{uploaded[doc.key]?'已上传':doc.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{padding:'0 16px 34px',display:'flex',gap:12}}>
+          <button onClick={()=>setKycStep(0)} style={{width:80,height:52,borderRadius:26,border:'1px solid #E0E0E0',background:'#FFF',fontSize:15,fontWeight:600,cursor:'pointer',color:'#757575'}}>返回</button>
+          <button onClick={()=>setKycStep(2)} disabled={!canNext} style={{flex:1,height:52,borderRadius:26,border:'none',background:canNext?'#1A73E8':'#E5E5EA',color:canNext?'#FFF':'#BDBDBD',fontSize:17,fontWeight:600,cursor:canNext?'pointer':'default'}}>下一步</button>
+        </div>
+      </div>
+    );
+  }
+
+  // KYC Sub-step 2: Risk Assessment
+  if(kycStep===2){
+    const canNext=!!riskLevel;
+    return(
+      <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',animation:'fadeIn 0.4s ease'}}>
+        <div style={{flex:1,padding:16}}>
+          <div style={{fontSize:20,fontWeight:700,marginBottom:4}}>身份认证 (KYC)</div>
+          <div style={{fontSize:13,color:'#757575',marginBottom:4}}>第 3/3 步 — 风险评估</div>
+          <ProgressBar step={2} total={3}/>
+
+          <div style={{marginTop:16}}>
+            <div style={{fontSize:14,fontWeight:600,marginBottom:4}}>您的投资经验</div>
+            <div style={{fontSize:12,color:'#757575',marginBottom:16}}>根据香港SFC规定，我们需要评估您的投资风险承受能力</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {[
+                {id:'conservative',label:'保守型',desc:'倾向于低风险投资，保本为主',color:'#22C55E'},
+                {id:'moderate',label:'稳健型',desc:'能接受适度风险，追求合理回报',color:'#F59E0B'},
+                {id:'aggressive',label:'积极型',desc:'能承受较高风险，追求高回报',color:'#EF4444'},
+              ].map(r=>(
+                <div key={r.id} onClick={()=>setRiskLevel(r.id)} style={{
+                  padding:16,borderRadius:12,cursor:'pointer',
+                  border:riskLevel===r.id?'2px solid '+r.color:'1px solid #E0E0E0',
+                  background:riskLevel===r.id?r.color+'15':'#FFF'
+                }}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{width:20,height:20,borderRadius:'50%',border:'2px solid '+(riskLevel===r.id?r.color:'#BDBDBD'),display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      {riskLevel===r.id&&<div style={{width:10,height:10,borderRadius:'50%',background:r.color}}/>}
+                    </div>
+                    <span style={{fontSize:15,fontWeight:600}}>{r.label}</span>
+                  </div>
+                  <div style={{fontSize:12,color:'#757575',marginTop:4,marginLeft:28}}>{r.desc}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{marginTop:20,padding:12,background:'#FEF3C7',borderRadius:8,fontSize:12,color:'#92400E'}}>
+              根据《证券及期货条例》，卓锐证券有义务了解客户的风险承受能力。此评估结果不影响您的账户开通。
+            </div>
+          </div>
+        </div>
+        <div style={{padding:'0 16px 34px',display:'flex',gap:12}}>
+          <button onClick={()=>setKycStep(1)} style={{width:80,height:52,borderRadius:26,border:'1px solid #E0E0E0',background:'#FFF',fontSize:15,fontWeight:600,cursor:'pointer',color:'#757575'}}>返回</button>
+          <button onClick={onNext} disabled={!canNext} style={{flex:1,height:52,borderRadius:26,border:'none',background:canNext?'#1A73E8':'#E5E5EA',color:canNext?'#FFF':'#BDBDBD',fontSize:17,fontWeight:600,cursor:canNext?'pointer':'default'}}>提交认证</button>
+        </div>
+      </div>
+    );
+  }
+}
+
+// Screen 5: Success / Login
+function SuccessScreen(){
+  return(
+    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'0 32px',textAlign:'center',animation:'fadeIn 0.4s ease'}}>
+      <div style={{width:80,height:80,borderRadius:'50%',background:'#E8F5E9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:40,marginBottom:20}}>🎉</div>
+      <div style={{fontSize:24,fontWeight:800,marginBottom:8}}>注册成功！</div>
+      <div style={{fontSize:15,color:'#757575',marginBottom:8}}>您的 KYC 资料已提交审核</div>
+      <div style={{fontSize:13,color:'#BDBDBD',marginBottom:32}}>预计 1-2 个工作日完成审核</div>
+
+      <div style={{width:'100%',background:'#F8F9FA',borderRadius:12,padding:16,marginBottom:32}}>
+        <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>已选择的交易所</div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {exchangeData.slice(0,2).map(ex=>(
+            <span key={ex.id} style={{display:'inline-flex',alignItems:'center',height:28,padding:'0 12px',borderRadius:14,background:ex.bg,color:ex.color,fontSize:13,fontWeight:600}}>{ex.name}</span>
+          ))}
+        </div>
+      </div>
+
+      <button style={{width:'100%',height:52,borderRadius:26,border:'none',background:'#1A73E8',color:'#FFF',fontSize:17,fontWeight:600,cursor:'pointer',marginBottom:12}}>
+        进入首页
+      </button>
+      <div style={{fontSize:13,color:'#757575'}}>审核通过后即可开始交易</div>
+    </div>
+  );
+}
+
+/* ========= MAIN APP ========= */
+function App(){
+  const[screen,setScreen]=useState(0);
+  // 0=Welcome, 1=SignUp, 2=OTP, 3=KYC, 4=Success
+
+  return(
+    <div style={{background:'#FFF',minHeight:'100vh'}}>
+      {/* Status bar */}
+      <div style={{height:59,background:'#FFF'}}/>
+
+      {/* Header (except welcome) */}
+      {screen>0&&screen<4&&(
+        <div style={{height:44,background:'#FFF',display:'flex',alignItems:'center',padding:'0 16px',borderBottom:'1px solid #F0F0F0'}}>
+          <div onClick={()=>setScreen(s=>Math.max(0,s-1))} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:20,marginRight:8}}>←</div>
+          <span style={{fontSize:16,fontWeight:600,flex:1}}>
+            {screen===1?'注册':screen===2?'验证':screen===3?'身份认证':''}
+          </span>
+          <span style={{fontSize:13,color:'#BDBDBD'}}>步骤 {screen}/4</span>
+        </div>
+      )}
+
+      {/* Progress */}
+      {screen>0&&screen<4&&<ProgressBar step={screen} total={4}/>}
+
+      {/* Screens */}
+      {screen===0&&<WelcomeScreen onNext={()=>setScreen(1)}/>}
+      {screen===1&&<SignUpScreen onNext={()=>setScreen(2)}/>}
+      {screen===2&&<OTPScreen onNext={()=>setScreen(3)}/>}
+      {screen===3&&<KYCScreen onNext={()=>setScreen(4)}/>}
+      {screen===4&&<SuccessScreen/>}
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>,document.getElementById('root'));
+</script>
+</body>
+</html>

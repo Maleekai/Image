@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — 委托管理</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --brand-blue: #1A73E8;
+  --brand-blue-hover: #4A90D9;
+  --brand-blue-dark: #1557B0;
+  --brand-blue-bg: #E8F0FE;
+  --success: #00C853;
+  --error: #FF1744;
+  --warning: #FFB300;
+  --info: #29B6F6;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --bg-tertiary: #EEEEEE;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --text-tertiary: #BDBDBD;
+  --border: #E0E0E0;
+  --divider: #F0F0F0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #F5F5F5; max-width: 390px; margin: 0 auto; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+@keyframes fadeOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(-30px); } }
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ========= MOCK DATA ========= */
+const initialOrders = [
+  {
+    id: 'ORD-2026-001', pair: 'BTC/USDT', symbol: 'BTC', direction: 'buy', orderType: 'limit',
+    exchange: 'HashKey', assetClass: '加密', price: 67234.50, amount: 1.25, amountFilled: 0.9375,
+    status: 'partial', fillPercent: 75, fee: 50.43, createdAt: Date.now() - 3600000
+  },
+  {
+    id: 'ORD-2026-002', pair: 'ETH/USDT', symbol: 'ETH', direction: 'sell', orderType: 'limit',
+    exchange: 'Bullish', assetClass: '加密', price: 3456.80, amount: 5.5, amountFilled: 0,
+    status: 'open', fillPercent: 0, fee: 0, createdAt: Date.now() - 7200000
+  },
+  {
+    id: 'ORD-2026-003', pair: 'SOL/USDT', symbol: 'SOL', direction: 'buy', orderType: 'stop-limit',
+    exchange: 'OSL', assetClass: '加密', price: 142.35, amount: 50, amountFilled: 0,
+    status: 'pending', fillPercent: 0, fee: 0, createdAt: Date.now() - 1800000
+  },
+  {
+    id: 'ORD-2026-004', pair: 'AAPL', symbol: 'AAPL', direction: 'buy', orderType: 'market',
+    exchange: 'VDX', assetClass: '股票', price: 192.50, amount: 10, amountFilled: 10,
+    status: 'filled', fillPercent: 100, fee: 19.25,
+    createdAt: Date.now() - 86400000, filledAt: Date.now() - 86395000
+  },
+  {
+    id: 'ORD-2026-005', pair: 'EUR/USD', symbol: 'EUR/USD', direction: 'sell', orderType: 'limit',
+    exchange: 'HashKey', assetClass: '外汇', price: 1.0892, amount: 5000, amountFilled: 5000,
+    status: 'filled', fillPercent: 100, fee: 5.45,
+    createdAt: Date.now() - 172800000, filledAt: Date.now() - 172790000
+  },
+  {
+    id: 'ORD-2026-006', pair: 'TSLA', symbol: 'TSLA', direction: 'buy', orderType: 'limit',
+    exchange: 'OSL', assetClass: '股票', price: 245.75, amount: 25, amountFilled: 0,
+    status: 'cancelled', fillPercent: 0, fee: 0,
+    createdAt: Date.now() - 259200000, cancelledAt: Date.now() - 259100000
+  },
+  {
+    id: 'ORD-2026-007', pair: 'GOLD', symbol: 'GOLD', direction: 'buy', orderType: 'market',
+    exchange: 'VDX', assetClass: '商品', price: 2087.45, amount: 2, amountFilled: 2,
+    status: 'filled', fillPercent: 100, fee: 8.35,
+    createdAt: Date.now() - 345600000, filledAt: Date.now() - 345590000
+  },
+  {
+    id: 'ORD-2026-008', pair: 'BTC/USDT', symbol: 'BTC', direction: 'sell', orderType: 'limit',
+    exchange: 'HashKey', assetClass: '加密', price: 68500.00, amount: 0.5, amountFilled: 0.5,
+    status: 'filled', fillPercent: 100, fee: 34.25,
+    createdAt: Date.now() - 432000000, filledAt: Date.now() - 431500000
+  },
+  {
+    id: 'ORD-2026-009', pair: 'GBP/USD', symbol: 'GBP/USD', direction: 'buy', orderType: 'limit',
+    exchange: 'Bullish', assetClass: '外汇', price: 1.2645, amount: 10000, amountFilled: 0,
+    status: 'cancelled', fillPercent: 0, fee: 0,
+    createdAt: Date.now() - 518400000, cancelledAt: Date.now() - 518300000
+  },
+  {
+    id: 'ORD-2026-010', pair: 'ETH/USDT', symbol: 'ETH', direction: 'buy', orderType: 'limit',
+    exchange: 'OSL', assetClass: '加密', price: 3200.00, amount: 3, amountFilled: 1.8,
+    status: 'partial', fillPercent: 60, fee: 11.52,
+    createdAt: Date.now() - 600000
+  }
+];
+
+/* ========= SHARED COMPONENTS ========= */
+
+function ExchangeBadge({ exchange }) {
+  const map = {
+    HashKey: { bg: '#E8EEFF', color: '#2962FF' },
+    Bullish: { bg: '#E0F7F0', color: '#00BFA5' },
+    OSL: { bg: '#FFF3E0', color: '#FF6D00' },
+    VDX: { bg: '#EDE7F6', color: '#7C4DFF' },
+  };
+  const s = map[exchange] || map.HashKey;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', height: 20, padding: '0 8px', borderRadius: 10, background: s.bg, color: s.color, fontSize: 11, fontWeight: 600, fontFamily: 'Inter' }}>
+      {exchange}
+    </span>
+  );
+}
+
+function OrderStatusBadge({ status }) {
+  const map = {
+    open: { bg: '#E8F0FE', color: '#1A73E8', text: '挂单中' },
+    partial: { bg: '#FFF8E1', color: '#F57F17', text: '部分成交' },
+    pending: { bg: '#F5F5F5', color: '#757575', text: '等待中' },
+    filled: { bg: '#E8F5E9', color: '#2E7D32', text: '已成交' },
+    cancelled: { bg: '#FFEBEE', color: '#C62828', text: '已撤销' },
+  };
+  const s = map[status] || map.pending;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', height: 22, padding: '0 8px', borderRadius: 11, background: s.bg, color: s.color, fontSize: 11, fontWeight: 600 }}>
+      {s.text}
+    </span>
+  );
+}
+
+function BottomTabBar({ activeTab = 3 }) {
+  const items = [
+    { label: '首页', icon: '🏠' },
+    { label: '行情', icon: '📊' },
+    { label: '交易', icon: '💱' },
+    { label: '委托', icon: '📋' },
+    { label: '更多', icon: '⋯' },
+  ];
+  return (
+    <div style={{ display: 'flex', height: 83, background: '#FFF', borderTop: '1px solid #F0F0F0', paddingBottom: 34 }}>
+      {items.map((item, i) => (
+        <div key={i} style={{
+          flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+          color: i === activeTab ? '#1A73E8' : '#BDBDBD', cursor: 'pointer'
+        }}>
+          <span style={{ fontSize: 22 }}>{item.icon}</span>
+          <span style={{ fontSize: 11, fontWeight: 500 }}>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ========= ORDER CARD ========= */
+function OrderCard({ order, onCancel, onTap, removing }) {
+  const isBuy = order.direction === 'buy';
+  const borderColor = isBuy ? '#00C853' : '#FF1744';
+  const barColor = isBuy ? '#34A853' : '#EA4335';
+  const canCancel = ['open', 'partial', 'pending'].includes(order.status);
+  const typeLabels = { limit: '限价单', market: '市价单', 'stop-limit': '止损限价' };
+
+  const fmtPrice = (p) => {
+    if (p >= 1000) return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (p >= 1) return p.toFixed(4);
+    return p.toFixed(6);
+  };
+
+  const fmtTime = (ts) => {
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    return pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  };
+
+  return (
+    <div
+      onClick={() => onTap(order)}
+      style={{
+        margin: '0 16px 12px', borderRadius: 8, background: '#FFFFFF', border: '1px solid #E8EAED',
+        overflow: 'hidden', cursor: 'pointer',
+        animation: removing ? 'fadeOut 0.3s ease forwards' : 'fadeIn 0.3s ease',
+        borderLeft: '4px solid ' + borderColor
+      }}
+    >
+      <div style={{ padding: '12px 14px' }}>
+        {/* Row 1: Pair + Type + Status */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: '#212121' }}>{order.pair}</span>
+            <span style={{ fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 4, background: '#F5F5F5', color: '#757575' }}>
+              {typeLabels[order.orderType] || order.orderType}
+            </span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: isBuy ? '#00C853' : '#FF1744' }}>
+              {isBuy ? '买入' : '卖出'}
+            </span>
+          </div>
+          <OrderStatusBadge status={order.status}/>
+        </div>
+
+        {/* Row 2: Price + Amount + Turnover */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div>
+            <div style={{ fontSize: 11, color: '#9E9E9E', marginBottom: 2 }}>价格</div>
+            <div style={{ fontSize: 14, fontFamily: 'JetBrains Mono', fontWeight: 600, color: '#212121' }}>
+              {fmtPrice(order.price)}
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 11, color: '#9E9E9E', marginBottom: 2 }}>数量</div>
+            <div style={{ fontSize: 14, fontFamily: 'JetBrains Mono', fontWeight: 500, color: '#5F6368' }}>
+              {order.amount} {order.symbol}
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 11, color: '#9E9E9E', marginBottom: 2 }}>成交额</div>
+            <div style={{ fontSize: 14, fontFamily: 'JetBrains Mono', fontWeight: 500, color: '#5F6368' }}>
+              {(order.price * order.amountFilled).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: Fill bar + Exchange + Time + Cancel */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+            <div style={{ width: 60 }}>
+              <div style={{ fontSize: 10, color: '#757575', marginBottom: 2 }}>{order.fillPercent}% 成交</div>
+              <div style={{ width: 60, height: 4, background: '#E8EAED', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ width: order.fillPercent + '%', height: '100%', background: barColor, borderRadius: 2, transition: 'width 0.5s ease' }}/>
+              </div>
+            </div>
+            <ExchangeBadge exchange={order.exchange}/>
+            <span style={{ fontSize: 11, color: '#BDBDBD', fontFamily: 'JetBrains Mono' }}>{fmtTime(order.createdAt)}</span>
+          </div>
+          {canCancel && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onCancel(order); }}
+              style={{
+                width: 28, height: 28, borderRadius: 6, border: 'none',
+                background: '#FFEBEE', color: '#EA4335',
+                fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}
+            >✕</button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========= CANCEL MODAL ========= */
+function CancelModal({ order, open, onClose, onConfirm }) {
+  if (!open || !order) return null;
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }}/>
+      <div style={{ position: 'relative', width: 300, background: '#FFF', borderRadius: 16, padding: 24, textAlign: 'center' }}>
+        <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#FFEBEE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 24 }}>⚠</div>
+        <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>撤销委托？</div>
+        <div style={{ fontSize: 13, color: '#5F6368', marginBottom: 4 }}>
+          {order.pair} {order.orderType === 'limit' ? '限价' : order.orderType === 'market' ? '市价' : '止损限价'} {order.direction === 'buy' ? '买入' : '卖出'}
+        </div>
+        <div style={{ fontSize: 14, fontFamily: 'JetBrains Mono', fontWeight: 600, color: '#212121', marginBottom: 12 }}>
+          {order.price.toLocaleString()} × {order.amount} {order.symbol}
+        </div>
+        <div style={{ fontSize: 12, color: '#EA4335', marginBottom: 20 }}>此操作无法撤销</div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={onClose} style={{ flex: 1, height: 44, border: '1px solid #E0E0E0', borderRadius: 12, background: '#FFF', fontSize: 15, fontWeight: 600, cursor: 'pointer', color: '#5F6368' }}>保留</button>
+          <button onClick={() => onConfirm(order.id)} style={{ flex: 1, height: 44, border: 'none', borderRadius: 12, background: '#EA4335', color: '#FFF', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>撤销委托</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========= ORDER DETAIL MODAL ========= */
+function DetailModal({ order, open, onClose }) {
+  if (!open || !order) return null;
+  const isBuy = order.direction === 'buy';
+  const barColor = isBuy ? '#34A853' : '#EA4335';
+  const typeLabels = { limit: '限价单', market: '市价单', 'stop-limit': '止损限价' };
+
+  const fmtPrice = (p) => {
+    if (p >= 1000) return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (p >= 1) return p.toFixed(4);
+    return p.toFixed(6);
+  };
+
+  const fmtDateTime = (ts) => {
+    if (!ts) return '-';
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  };
+
+  const InfoRow = ({ label, value, mono }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F5F5F5' }}>
+      <span style={{ fontSize: 13, color: '#757575' }}>{label}</span>
+      <span style={{ fontSize: 13, fontWeight: 600, fontFamily: mono ? 'JetBrains Mono' : 'Inter', color: '#212121' }}>{value}</span>
+    </div>
+  );
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }}/>
+      <div style={{ position: 'relative', width: 340, maxHeight: '80vh', background: '#FFF', borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{ padding: '20px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 18, fontWeight: 700 }}>{order.pair}</span>
+            <OrderStatusBadge status={order.status}/>
+          </div>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#F5F5F5', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+        </div>
+        <div style={{ padding: '0 20px 20px', overflowY: 'auto', maxHeight: 'calc(80vh - 70px)' }}>
+          <InfoRow label="订单编号" value={order.id} mono/>
+          <InfoRow label="类型" value={typeLabels[order.orderType]}/>
+          <InfoRow label="方向" value={isBuy ? '买入' : '卖出'}/>
+          <InfoRow label="价格" value={fmtPrice(order.price)} mono/>
+          <InfoRow label="委托数量" value={order.amount + ' ' + order.symbol} mono/>
+          <InfoRow label="已成交量" value={order.amountFilled + ' ' + order.symbol} mono/>
+
+          <div style={{ padding: '12px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 13, color: '#757575' }}>成交进度</span>
+              <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'JetBrains Mono' }}>{order.fillPercent}%</span>
+            </div>
+            <div style={{ width: '100%', height: 6, background: '#E8EAED', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ width: order.fillPercent + '%', height: '100%', background: barColor, borderRadius: 3 }}/>
+            </div>
+            <div style={{ fontSize: 12, color: '#9E9E9E', marginTop: 4, fontFamily: 'JetBrains Mono' }}>
+              {order.amountFilled} / {order.amount} {order.symbol}
+            </div>
+          </div>
+
+          <InfoRow label="交易所" value={order.exchange}/>
+          <InfoRow label="资产类别" value={order.assetClass}/>
+          <InfoRow label="手续费" value={order.fee.toFixed(4) + ' USDT'} mono/>
+          <InfoRow label="成交额" value={(order.price * order.amountFilled).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USDT'} mono/>
+          <InfoRow label="创建时间" value={fmtDateTime(order.createdAt)} mono/>
+          {order.filledAt && <InfoRow label="成交时间" value={fmtDateTime(order.filledAt)} mono/>}
+          {order.cancelledAt && <InfoRow label="撤销时间" value={fmtDateTime(order.cancelledAt)} mono/>}
+
+          <div style={{ marginTop: 12, padding: 10, background: '#F5F5F5', borderRadius: 8, fontSize: 11, color: '#9E9E9E', lineHeight: 1.5 }}>
+            本信息仅供参考，不构成投资建议。卓锐证券受香港证监会监管。
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ========= TOAST ========= */
+function Toast({ message, show }) {
+  if (!show) return null;
+  return (
+    <div style={{
+      position: 'fixed', bottom: 100, left: '50%', transform: 'translateX(-50%)',
+      background: '#323232', color: '#FFF', padding: '10px 20px', borderRadius: 8,
+      fontSize: 14, fontWeight: 500, zIndex: 300, animation: 'fadeIn 0.3s ease'
+    }}>{message}</div>
+  );
+}
+
+/* ========= MAIN APP ========= */
+function App() {
+  const [orders, setOrders] = useState(initialOrders);
+  const [activeTab, setActiveTab] = useState(0);
+  const [assetFilter, setAssetFilter] = useState('全部');
+  const [exchangeFilter, setExchangeFilter] = useState('全部');
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [detailTarget, setDetailTarget] = useState(null);
+  const [removingId, setRemovingId] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: '' });
+
+  const tabs = [
+    { key: 'open', label: '当前委托' },
+    { key: 'history', label: '历史委托' },
+    { key: 'filled', label: '成交记录' },
+  ];
+
+  const assetClasses = ['全部', '加密', '股票', '外汇', '商品'];
+  const exchangeList = ['全部', 'HashKey', 'Bullish', 'OSL', 'VDX'];
+
+  const filteredOrders = orders.filter(o => {
+    if (activeTab === 0 && !['open', 'partial', 'pending'].includes(o.status)) return false;
+    if (activeTab === 1 && !['filled', 'cancelled'].includes(o.status)) return false;
+    if (activeTab === 2 && o.status !== 'filled') return false;
+    if (assetFilter !== '全部' && o.assetClass !== assetFilter) return false;
+    if (exchangeFilter !== '全部' && o.exchange !== exchangeFilter) return false;
+    return true;
+  });
+
+  const openCount = orders.filter(o => ['open', 'partial', 'pending'].includes(o.status)).length;
+  const historyCount = orders.filter(o => ['filled', 'cancelled'].includes(o.status)).length;
+  const filledCount = orders.filter(o => o.status === 'filled').length;
+  const tabCounts = [openCount, historyCount, filledCount];
+
+  const showToast = (msg) => {
+    setToast({ show: true, message: msg });
+    setTimeout(() => setToast({ show: false, message: '' }), 2000);
+  };
+
+  const handleCancel = (orderId) => {
+    setRemovingId(orderId);
+    setCancelTarget(null);
+    setTimeout(() => {
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'cancelled', cancelledAt: Date.now() } : o));
+      setRemovingId(null);
+      showToast('委托已撤销');
+    }, 350);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOrders(prev => prev.map(o => {
+        if (o.status === 'partial' && o.fillPercent < 100) {
+          const newFill = Math.min(100, o.fillPercent + Math.floor(Math.random() * 5) + 1);
+          const newFilled = o.amount * (newFill / 100);
+          return {
+            ...o, fillPercent: newFill, amountFilled: parseFloat(newFilled.toFixed(8)),
+            status: newFill >= 100 ? 'filled' : 'partial',
+            filledAt: newFill >= 100 ? Date.now() : undefined,
+            fee: parseFloat((o.price * newFilled * 0.001).toFixed(4))
+          };
+        }
+        return o;
+      }));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div style={{ background: '#F5F5F5', minHeight: '100vh', paddingBottom: 83 }}>
+      <div style={{ height: 59, background: '#FFFFFF' }}/>
+
+      {/* Header */}
+      <div style={{ height: 44, background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', borderBottom: '1px solid #F0F0F0' }}>
+        <span style={{ fontSize: 18, fontWeight: 700, color: '#212121' }}>委托管理</span>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, cursor: 'pointer' }}>⚙</div>
+      </div>
+
+      {/* Tab Bar */}
+      <div style={{ display: 'flex', height: 44, background: '#FFFFFF', borderBottom: '1px solid #F0F0F0', padding: '0 16px', position: 'sticky', top: 0, zIndex: 10 }}>
+        {tabs.map((tab, i) => (
+          <button key={tab.key} onClick={() => setActiveTab(i)} style={{
+            flex: 1, border: 'none', background: 'transparent', cursor: 'pointer',
+            fontSize: 14, fontWeight: activeTab === i ? 600 : 500,
+            color: activeTab === i ? '#1A73E8' : '#757575',
+            borderBottom: activeTab === i ? '2px solid #1A73E8' : '2px solid transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+            transition: 'all 0.2s ease', fontFamily: 'Inter'
+          }}>
+            {tab.label}
+            {tabCounts[i] > 0 && (
+              <span style={{
+                minWidth: 18, height: 18, borderRadius: 9, padding: '0 5px',
+                background: activeTab === i ? '#1A73E8' : '#E0E0E0',
+                color: activeTab === i ? '#FFF' : '#757575',
+                fontSize: 10, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
+              }}>{tabCounts[i]}</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Filter Row */}
+      <div style={{ display: 'flex', gap: 8, padding: '8px 16px', background: '#FFFFFF', borderBottom: '1px solid #F0F0F0', overflowX: 'auto', position: 'sticky', top: 44, zIndex: 10 }}>
+        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+          {assetClasses.map(ac => (
+            <button key={ac} onClick={() => setAssetFilter(ac)} style={{
+              height: 30, padding: '0 10px', borderRadius: 6, border: 'none',
+              fontSize: 12, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Inter',
+              background: assetFilter === ac ? '#E8F0FE' : '#F5F5F5',
+              color: assetFilter === ac ? '#1A73E8' : '#757575',
+            }}>{ac}</button>
+          ))}
+        </div>
+        <div style={{ width: 1, background: '#E0E0E0', flexShrink: 0 }}/>
+        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+          {exchangeList.map(ex => (
+            <button key={ex} onClick={() => setExchangeFilter(ex)} style={{
+              height: 30, padding: '0 10px', borderRadius: 6, border: 'none',
+              fontSize: 12, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Inter',
+              background: exchangeFilter === ex ? '#E8F0FE' : '#F5F5F5',
+              color: exchangeFilter === ex ? '#1A73E8' : '#757575',
+            }}>{ex}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Order List */}
+      <div style={{ paddingTop: 12 }}>
+        {filteredOrders.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', textAlign: 'center' }}>
+            <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#F0F0F0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, marginBottom: 16 }}>📋</div>
+            <div style={{ fontSize: 17, fontWeight: 600, color: '#212121', marginBottom: 8 }}>
+              {assetFilter !== '全部' || exchangeFilter !== '全部' ? '没有找到匹配的委托' : '暂无委托记录'}
+            </div>
+            <div style={{ fontSize: 13, color: '#757575', marginBottom: 20 }}>
+              {assetFilter !== '全部' || exchangeFilter !== '全部' ? '请调整筛选条件后重试' : '下单后，您的委托将会显示在这里'}
+            </div>
+            <button onClick={() => { setAssetFilter('全部'); setExchangeFilter('全部'); }} style={{
+              height: 44, padding: '0 32px', borderRadius: 22, border: 'none',
+              background: '#1A73E8', color: '#FFF', fontSize: 15, fontWeight: 600, cursor: 'pointer'
+            }}>
+              {assetFilter !== '全部' || exchangeFilter !== '全部' ? '清除筛选' : '去交易'}
+            </button>
+          </div>
+        ) : (
+          filteredOrders.map(order => (
+            <OrderCard
+              key={order.id} order={order}
+              onCancel={(o) => setCancelTarget(o)}
+              onTap={(o) => setDetailTarget(o)}
+              removing={removingId === order.id}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Bottom Tab Bar */}
+      <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 390, zIndex: 50 }}>
+        <BottomTabBar activeTab={3}/>
+      </div>
+
+      <CancelModal order={cancelTarget} open={!!cancelTarget} onClose={() => setCancelTarget(null)} onConfirm={handleCancel}/>
+      <DetailModal order={detailTarget} open={!!detailTarget} onClose={() => setDetailTarget(null)}/>
+      <Toast message={toast.message} show={toast.show}/>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>

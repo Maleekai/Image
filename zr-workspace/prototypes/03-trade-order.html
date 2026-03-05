@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — Trade Order</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --brand-blue: #1A73E8;
+  --brand-blue-hover: #4A90D9;
+  --brand-blue-dark: #1557B0;
+  --brand-blue-bg: #E8F0FE;
+  --success: #34A853;
+  --success-light: #00C853;
+  --error: #FF1744;
+  --danger: #EA4335;
+  --warning: #FBBC04;
+  --info: #29B6F6;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FA;
+  --bg-tertiary: #EEEEEE;
+  --text-primary: #212121;
+  --text-secondary: #5F6368;
+  --text-tertiary: #BDBDBD;
+  --border: #E8EAED;
+  --divider: #F0F0F0;
+  --hashkey-blue: #2962FF;
+  --bullish-teal: #00BFA5;
+  --osl-orange: #FF6D00;
+  --vdx-purple: #7C4DFF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #F8F9FA; max-width: 390px; margin: 0 auto; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ========= COMPONENTS ========= */
+
+// Status Bar (59px) + Header (56px) placeholder component
+function StatusAndHeader({ onClose }) {
+  return (
+    <div style={{ background: '#FFFFFF', borderBottom: '1px solid var(--border)' }}>
+      {/* Status bar 59px */}
+      <div style={{ height: 59, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, fontSize: 12, color: var(--text-secondary) }}>
+        <span>9:41</span>
+        <span>●●●●●</span>
+      </div>
+      {/* Header 56px */}
+      <div style={{ height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 16, paddingRight: 16, borderBottom: '1px solid var(--border)' }}>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', padding: 0 }}>×</button>
+        <span style={{ fontSize: 16, fontWeight: 600, color: var(--text-primary) }}>新订单</span>
+        <div style={{ width: 24 }}/>
+      </div>
+    </div>
+  );
+}
+
+// Buy/Sell Toggle
+function BuySellToggle({ direction, onChange, theme }) {
+  return (
+    <div style={{ display: 'flex', gap: 8, padding: '16px 16px' }}>
+      <button
+        onClick={() => onChange('buy')}
+        style={{
+          flex: 1,
+          height: 44,
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: 'pointer',
+          background: direction === 'buy' ? var(--success) : '#F8F9FA',
+          color: direction === 'buy' ? '#FFFFFF' : var(--text-secondary),
+          transition: 'all 0.2s'
+        }}
+      >
+        买入
+      </button>
+      <button
+        onClick={() => onChange('sell')}
+        style={{
+          flex: 1,
+          height: 44,
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: 'pointer',
+          background: direction === 'sell' ? var(--danger) : '#F8F9FA',
+          color: direction === 'sell' ? '#FFFFFF' : var(--text-secondary),
+          transition: 'all 0.2s'
+        }}
+      >
+        卖出
+      </button>
+    </div>
+  );
+}
+
+// Order Type Selector
+function OrderTypeSelector({ orderType, onChange }) {
+  const types = [
+    { id: 'market', label: '市价单' },
+    { id: 'limit', label: '限价单' },
+    { id: 'stop-limit', label: '止损单' }
+  ];
+
+  return (
+    <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', paddingLeft: 16, paddingRight: 16, gap: 24 }}>
+      {types.map(type => (
+        <button
+          key={type.id}
+          onClick={() => onChange(type.id)}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: '12px 0',
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: 'pointer',
+            color: orderType === type.id ? var(--brand-blue) : var(--text-secondary),
+            borderBottom: orderType === type.id ? `2px solid var(--brand-blue)` : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          {type.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Price Input with +/- buttons
+function PriceInput({ label, value, onChange, onIncrement, onDecrement, disabled = false, showMarketPrice = false }) {
+  return (
+    <div style={{ padding: '16px' }}>
+      <div style={{ fontSize: 12, color: var(--text-secondary), marginBottom: 6, fontFamily: 'Inter' }}>
+        {label}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', height: 56, background: '#FFFFFF', borderRadius: 8, border: `1px solid var(--border)`, padding: '0 8px' }}>
+        <button
+          onClick={onDecrement}
+          disabled={disabled}
+          style={{
+            width: 36,
+            height: 36,
+            border: 'none',
+            borderRadius: 8,
+            background: 'none',
+            fontSize: 14,
+            fontWeight: 700,
+            color: disabled ? var(--text-tertiary) : var(--brand-blue),
+            cursor: disabled ? 'default' : 'pointer'
+          }}
+        >
+          −
+        </button>
+        <input
+          type="number"
+          value={value || ''}
+          onChange={onChange}
+          disabled={disabled}
+          placeholder={showMarketPrice ? '市场价格' : '0.00'}
+          style={{
+            flex: 1,
+            border: 'none',
+            background: 'transparent',
+            fontSize: 16,
+            fontFamily: 'JetBrains Mono',
+            fontWeight: 600,
+            textAlign: 'center',
+            outline: 'none',
+            color: var(--text-primary),
+            opacity: disabled ? 0.5 : 1
+          }}
+        />
+        <button
+          onClick={onIncrement}
+          disabled={disabled}
+          style={{
+            width: 36,
+            height: 36,
+            border: 'none',
+            borderRadius: 8,
+            background: 'none',
+            fontSize: 14,
+            fontWeight: 700,
+            color: disabled ? var(--text-tertiary) : var(--brand-blue),
+            cursor: disabled ? 'default' : 'pointer'
+          }}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Amount Input with unit toggle
+function AmountInput({ value, onChange, unit, onUnitChange, available, availableLabel }) {
+  return (
+    <div style={{ padding: '0 16px 16px' }}>
+      <div style={{ fontSize: 12, color: var(--text-secondary), marginBottom: 6, fontFamily: 'Inter' }}>
+        金额
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', height: 56, background: '#FFFFFF', borderRadius: 8, border: `1px solid var(--border)`, padding: '0 12px' }}>
+        <input
+          type="number"
+          value={value || ''}
+          onChange={onChange}
+          placeholder="0.00"
+          style={{
+            flex: 1,
+            border: 'none',
+            background: 'transparent',
+            fontSize: 16,
+            fontFamily: 'JetBrains Mono',
+            fontWeight: 600,
+            textAlign: 'left',
+            outline: 'none',
+            color: var(--text-primary)
+          }}
+        />
+        {/* Unit Toggle */}
+        <div style={{ display: 'flex', background: '#F8F9FA', borderRadius: 6, padding: 2, gap: 2, marginLeft: 8 }}>
+          {['BTC', 'USDT'].map(u => (
+            <button
+              key={u}
+              onClick={() => onUnitChange(u)}
+              style={{
+                padding: '4px 8px',
+                border: 'none',
+                borderRadius: 4,
+                background: unit === u ? '#FFFFFF' : 'transparent',
+                color: unit === u ? var(--brand-blue) : var(--text-secondary),
+                fontSize: 10,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {u}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ fontSize: 12, color: var(--text-secondary), marginTop: 6, fontFamily: 'Inter' }}>
+        可用余额: <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 500, color: var(--text-primary) }}>{available} {availableLabel}</span>
+      </div>
+    </div>
+  );
+}
+
+// Quick percentage buttons
+function QuickPercentageButtons({ onSelect, disabled = false }) {
+  const percentages = [
+    { label: '25%', value: 0.25 },
+    { label: '50%', value: 0.50 },
+    { label: '75%', value: 0.75 },
+    { label: '100%', value: 1.00 }
+  ];
+
+  return (
+    <div style={{ padding: '0 16px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {percentages.map(p => (
+        <button
+          key={p.label}
+          onClick={() => onSelect(p.value)}
+          disabled={disabled}
+          style={{
+            flex: `0 1 calc(25% - 6px)`,
+            height: 36,
+            padding: '0 8px',
+            border: 'none',
+            borderRadius: 20,
+            background: '#F8F9FA',
+            color: disabled ? var(--text-tertiary) : var(--brand-blue),
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: disabled ? 'default' : 'pointer',
+            transition: 'all 0.2s',
+            opacity: disabled ? 0.5 : 1
+          }}
+        >
+          {p.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Exchange Selector Dropdown
+function ExchangeSelector({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const exchanges = [
+    { id: 'HashKey', label: 'HashKey', color: var(--hashkey-blue), bg: '#E8EEFF' },
+    { id: 'Bullish', label: 'Bullish', color: var(--bullish-teal), bg: '#E0F7F0' },
+    { id: 'OSL', label: 'OSL', color: var(--osl-orange), bg: '#FFF3E0' },
+    { id: 'VDX', label: 'VDX', color: var(--vdx-purple), bg: '#EDE7F6' }
+  ];
+
+  const selected = exchanges.find(e => e.id === value);
+
+  return (
+    <div style={{ padding: '16px' }}>
+      <div style={{ fontSize: 12, color: var(--text-secondary), marginBottom: 6, fontFamily: 'Inter' }}>
+        交易所
+      </div>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '100%',
+          height: 56,
+          padding: '0 12px',
+          border: `1px solid var(--border)`,
+          borderRadius: 8,
+          background: '#FFFFFF',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          fontSize: 14,
+          fontWeight: 500,
+          color: var(--text-primary)
+        }}
+      >
+        <span style={{ display: 'inline-flex', alignItems: 'center', height: 20, padding: '0 8px', borderRadius: 10, background: selected.bg, color: selected.color, fontSize: 12, fontWeight: 500 }}>
+          {selected.label}
+        </span>
+        <span style={{ fontSize: 16 }}>▼</span>
+      </button>
+
+      {open && (
+        <div style={{ position: 'absolute', top: '100%', left: 16, right: 16, marginTop: 4, background: '#FFFFFF', border: `1px solid var(--border)`, borderRadius: 8, zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+          {exchanges.map(ex => (
+            <button
+              key={ex.id}
+              onClick={() => {
+                onChange(ex.id);
+                setOpen(false);
+              }}
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: 'none',
+                background: 'none',
+                textAlign: 'left',
+                cursor: 'pointer',
+                borderBottom: ex.id !== exchanges[exchanges.length - 1].id ? `1px solid var(--divider)` : 'none',
+                color: var(--text-primary),
+                fontSize: 14,
+                fontWeight: 500
+              }}
+            >
+              <span style={{ display: 'inline-flex', alignItems: 'center', height: 20, padding: '0 8px', borderRadius: 10, background: ex.bg, color: ex.color, fontSize: 12, fontWeight: 500 }}>
+                {ex.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Order Summary Card
+function OrderSummaryCard({ estimatedTotal, fee, exchange, direction }) {
+  const exchangeColors = {
+    'HashKey': { color: var(--hashkey-blue), bg: '#E8EEFF' },
+    'Bullish': { color: var(--bullish-teal), bg: '#E0F7F0' },
+    'OSL': { color: var(--osl-orange), bg: '#FFF3E0' },
+    'VDX': { color: var(--vdx-purple), bg: '#EDE7F6' }
+  };
+
+  const colors = exchangeColors[exchange] || exchangeColors['HashKey'];
+  const totalWithFee = estimatedTotal + fee;
+  const actionColor = direction === 'buy' ? var(--success) : var(--danger);
+
+  return (
+    <div style={{ margin: '16px', padding: '16px', background: '#F8F9FA', borderRadius: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <span style={{ fontSize: 12, color: var(--text-secondary), fontFamily: 'Inter' }}>预计总额</span>
+        <span style={{ fontSize: 14, fontWeight: 600, fontFamily: 'JetBrains Mono', color: actionColor }}>
+          ${estimatedTotal.toFixed(2)}
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <span style={{ fontSize: 12, color: var(--text-secondary), fontFamily: 'Inter' }}>手续费</span>
+        <span style={{ fontSize: 12, fontFamily: 'JetBrains Mono', color: var(--text-secondary) }}>
+          ${fee.toFixed(4)}
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 12, color: var(--text-secondary), fontFamily: 'Inter' }}>交易所</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', height: 20, padding: '0 8px', borderRadius: 10, background: colors.bg, color: colors.color, fontSize: 12, fontWeight: 500 }}>
+          {exchange}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// Place Order Button
+function PlaceOrderButton({ direction, disabled = false, onClick }) {
+  const color = direction === 'buy' ? var(--success) : var(--danger);
+  const text = direction === 'buy' ? '立即买入' : '立即卖出';
+
+  return (
+    <div style={{ padding: '0 16px 16px' }}>
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        style={{
+          width: '100%',
+          height: 52,
+          border: 'none',
+          borderRadius: 8,
+          background: disabled ? '#D3D3D3' : color,
+          color: disabled ? '#9AA0A6' : '#FFFFFF',
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: disabled ? 'default' : 'pointer',
+          transition: 'all 0.2s'
+        }}
+      >
+        {text}
+      </button>
+    </div>
+  );
+}
+
+// Cooling-Off Modal
+function CoolingOffModal({ open, onClose, onProceed }) {
+  const [remaining, setRemaining] = useState(28);
+
+  useEffect(() => {
+    if (!open) {
+      setRemaining(28);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setRemaining(r => {
+        if (r <= 1) {
+          clearInterval(timer);
+          onClose();
+          return 0;
+        }
+        return r - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }}/>
+      <div style={{ position: 'relative', width: 320, background: '#FFFFFF', borderRadius: 16, padding: 24, textAlign: 'center', zIndex: 201 }}>
+        <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: var(--text-primary) }}>订单风险检查</div>
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 28, marginBottom: 8 }}>⚠️</div>
+          <div style={{ fontSize: 14, color: var(--text-secondary), lineHeight: 1.5 }}>
+            此笔订单超过您估计投资组合的 20%。请在继续前检查。
+          </div>
+        </div>
+
+        <div style={{ background: '#F8F9FA', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 12, fontFamily: 'JetBrains Mono', color: var(--text-secondary) }}>
+          <div style={{ marginBottom: 6 }}>订单价值: HK$2,450,000</div>
+          <div>投资组合: ~HK$12,000,000</div>
+        </div>
+
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ fontSize: 48, fontWeight: 700, fontFamily: 'JetBrains Mono', color: var(--danger) }}>
+            {remaining}s
+          </div>
+          <div style={{ fontSize: 10, color: var(--text-secondary) }}>自动取消倒计时</div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              height: 44,
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              background: '#F8F9FA',
+              color: var(--brand-blue),
+              fontSize: 15,
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            等待
+          </button>
+          <button
+            onClick={onProceed}
+            style={{
+              flex: 1,
+              height: 44,
+              border: 'none',
+              borderRadius: 8,
+              background: var(--danger),
+              color: '#FFFFFF',
+              fontSize: 15,
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            继续
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// SFC Risk Disclaimer Modal
+function SFCDisclaimerModal({ open, onClose, onConfirm, direction }) {
+  const [agreed, setAgreed] = useState(false);
+
+  if (!open) return null;
+
+  const buttonColor = direction === 'buy' ? var(--success) : var(--danger);
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 250, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }}/>
+      <div style={{ position: 'relative', width: 320, background: '#FFFFFF', borderRadius: 16, padding: 24, textAlign: 'left', zIndex: 251, maxHeight: '80vh', overflowY: 'auto' }}>
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: var(--text-primary) }}>风险声明</div>
+
+        <div style={{ marginBottom: 20, padding: 12, background: '#FFF8E1', borderRadius: 8, fontSize: 12, color: var(--text-secondary), lineHeight: 1.6 }}>
+          您理解加密资产交易具有高风险，包括可能完全损失本金的风险。继续操作即表示您已阅读并接受了 SFC 风险披露和免责声明。
+        </div>
+
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 16, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={e => setAgreed(e.target.checked)}
+            style={{ marginTop: 3, cursor: 'pointer' }}
+          />
+          <span style={{ fontSize: 12, color: var(--text-secondary) }}>
+            我已阅读并接受免责声明
+          </span>
+        </label>
+
+        <div style={{ marginBottom: 20 }}>
+          <button
+            onClick={() => window.open('#', '_blank')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: var(--brand-blue),
+              fontSize: 12,
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              padding: 0
+            }}
+          >
+            查看完整条款
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              height: 44,
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              background: '#F8F9FA',
+              color: var(--text-secondary),
+              fontSize: 15,
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            取消
+          </button>
+          <button
+            onClick={() => {
+              if (agreed) onConfirm();
+            }}
+            disabled={!agreed}
+            style={{
+              flex: 1,
+              height: 44,
+              border: 'none',
+              borderRadius: 8,
+              background: !agreed ? '#D3D3D3' : buttonColor,
+              color: !agreed ? '#9AA0A6' : '#FFFFFF',
+              fontSize: 15,
+              fontWeight: 600,
+              cursor: !agreed ? 'default' : 'pointer'
+            }}
+          >
+            确认订单
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Success Toast
+function SuccessToast({ show, message }) {
+  if (!show) return null;
+
+  return (
+    <div style={{ position: 'fixed', top: 100, left: '50%', transform: 'translateX(-50%)', zIndex: 300, background: var(--success), color: '#FFFFFF', padding: '12px 24px', borderRadius: 8, fontSize: 14, fontWeight: 500 }}>
+      {message}
+    </div>
+  );
+}
+
+/* ========= MAIN APP ========= */
+function TradeOrderPage() {
+  // Form state
+  const [direction, setDirection] = useState('buy');
+  const [orderType, setOrderType] = useState('limit');
+  const [price, setPrice] = useState(28456.75);
+  const [triggerPrice, setTriggerPrice] = useState(null);
+  const [amount, setAmount] = useState(0.5);
+  const [amountUnit, setAmountUnit] = useState('BTC');
+  const [exchange, setExchange] = useState('HashKey');
+
+  // Mock data
+  const mockBalances = { BTC: 0.5234, USDT: 32450.00 };
+  const currentPrice = 28456.75;
+
+  // Modal states
+  const [showCoolingOff, setShowCoolingOff] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Calculate summary
+  const estimatedTotal = price && amount ? parseFloat((price * amount).toFixed(2)) : 0;
+  const fee = estimatedTotal * 0.001;
+  const totalWithFee = estimatedTotal + fee;
+
+  // Validation
+  const isValid = price > 0 && amount > 0 && (orderType === 'market' || price > 0) && (orderType !== 'stop-limit' || triggerPrice > 0);
+  const portfolioValue = 12000000; // HK$
+  const orderValueHKD = estimatedTotal * 3.8; // Mock conversion
+  const exceedsThreshold = orderValueHKD > portfolioValue * 0.2;
+
+  // Handlers
+  const handleIncrement = () => {
+    if (orderType === 'market') return;
+    const increment = price > 1000 ? 50 : 0.01;
+    setPrice(parseFloat((price + increment).toFixed(8)));
+  };
+
+  const handleDecrement = () => {
+    if (orderType === 'market' || price <= 0) return;
+    const decrement = price > 1000 ? 50 : 0.01;
+    const newPrice = price - decrement;
+    setPrice(newPrice > 0 ? parseFloat(newPrice.toFixed(8)) : 0);
+  };
+
+  const handleQuickPercent = (percent) => {
+    const available = amountUnit === 'BTC' ? mockBalances.BTC : mockBalances.USDT;
+    const newAmount = available * percent;
+    setAmount(parseFloat(newAmount.toFixed(8)));
+  };
+
+  const handlePlaceOrder = () => {
+    if (!isValid) return;
+
+    if (exceedsThreshold) {
+      setShowCoolingOff(true);
+    } else {
+      setShowDisclaimer(true);
+    }
+  };
+
+  const handleCoolingOffProceed = () => {
+    setShowCoolingOff(false);
+    setShowDisclaimer(true);
+  };
+
+  const handleConfirmOrder = () => {
+    setShowDisclaimer(false);
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      // In real app, navigate to Order Management
+    }, 2000);
+  };
+
+  const availableBalance = amountUnit === 'BTC' ? mockBalances.BTC : mockBalances.USDT;
+
+  return (
+    <div style={{ background: '#F8F9FA', minHeight: '100vh', paddingBottom: 100 }}>
+      {/* Status + Header */}
+      <StatusAndHeader onClose={() => alert('关闭页面')} />
+
+      {/* Buy/Sell Toggle */}
+      <BuySellToggle direction={direction} onChange={setDirection} theme={direction === 'buy' ? var(--success) : var(--danger)} />
+
+      {/* Order Type Selector */}
+      <OrderTypeSelector orderType={orderType} onChange={setOrderType} />
+
+      {/* Form Inputs */}
+      {(orderType === 'limit' || orderType === 'stop-limit') && (
+        <PriceInput
+          label={orderType === 'stop-limit' ? '触发价格' : '限价'}
+          value={price}
+          onChange={e => setPrice(parseFloat(e.target.value) || 0)}
+          onIncrement={handleIncrement}
+          onDecrement={handleDecrement}
+          disabled={false}
+        />
+      )}
+
+      {orderType === 'stop-limit' && (
+        <PriceInput
+          label="限价"
+          value={triggerPrice}
+          onChange={e => setTriggerPrice(parseFloat(e.target.value) || 0)}
+          onIncrement={() => setTriggerPrice((triggerPrice || 0) + 50)}
+          onDecrement={() => setTriggerPrice(Math.max(0, (triggerPrice || 0) - 50))}
+          disabled={false}
+        />
+      )}
+
+      {orderType === 'market' && (
+        <div style={{ padding: '16px', background: '#F8F9FA', margin: '0 16px', borderRadius: 8, fontSize: 13, color: var(--text-secondary), textAlign: 'center' }}>
+          市价单将以最优市场价格立即执行: ${currentPrice.toFixed(2)}
+        </div>
+      )}
+
+      {/* Amount Input */}
+      <AmountInput
+        value={amount}
+        onChange={e => setAmount(parseFloat(e.target.value) || 0)}
+        unit={amountUnit}
+        onUnitChange={setAmountUnit}
+        available={availableBalance.toFixed(8)}
+        availableLabel={amountUnit}
+      />
+
+      {/* Quick Percentage Buttons */}
+      <QuickPercentageButtons onSelect={handleQuickPercent} disabled={false} />
+
+      {/* Order Summary */}
+      <OrderSummaryCard
+        estimatedTotal={estimatedTotal}
+        fee={fee}
+        exchange={exchange}
+        direction={direction}
+      />
+
+      {/* Exchange Selector */}
+      <div style={{ position: 'relative' }}>
+        <ExchangeSelector value={exchange} onChange={setExchange} />
+      </div>
+
+      {/* Place Order Button */}
+      <PlaceOrderButton
+        direction={direction}
+        disabled={!isValid}
+        onClick={handlePlaceOrder}
+      />
+
+      {/* Footer text - SFC Disclaimer notice */}
+      <div style={{ padding: '0 16px 20px', fontSize: 11, color: var(--text-tertiary), textAlign: 'center', fontFamily: 'Inter' }}>
+        受香港 SFC 监管，风险风险 © 2026 ZR Securities
+      </div>
+
+      {/* Modals */}
+      <CoolingOffModal
+        open={showCoolingOff}
+        onClose={() => setShowCoolingOff(false)}
+        onProceed={handleCoolingOffProceed}
+      />
+
+      <SFCDisclaimerModal
+        open={showDisclaimer}
+        onClose={() => setShowDisclaimer(false)}
+        onConfirm={handleConfirmOrder}
+        direction={direction}
+      />
+
+      <SuccessToast show={showSuccess} message="订单已提交，前往订单管理" />
+    </div>
+  );
+}
+
+ReactDOM.render(<TradeOrderPage/>, document.getElementById('root'));
+</script>
+</body>
+</html>

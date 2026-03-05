@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — 充值</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--brand-blue:#1A73E8;--success:#00C853;--error:#FF1744;--warning:#FFB300}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:#F5F5F5;max-width:390px;margin:0 auto}
+.mono{font-family:'JetBrains Mono',monospace}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState}=React;
+
+const coins=[
+  {id:'btc',name:'Bitcoin',code:'BTC'},{id:'eth',name:'Ethereum',code:'ETH'},
+  {id:'usdt',name:'Tether',code:'USDT'},{id:'usdc',name:'USD Coin',code:'USDC'},
+  {id:'sol',name:'Solana',code:'SOL'},{id:'xrp',name:'Ripple',code:'XRP'},
+  {id:'ada',name:'Cardano',code:'ADA'},{id:'bnb',name:'BNB',code:'BNB'},
+];
+
+const networks={
+  BTC:[
+    {id:'btc-main',name:'Bitcoin Network',fee:'0.0005 BTC',time:'10-30 分钟',confirm:6,rec:true},
+    {id:'btc-ln',name:'Lightning Network',fee:'0.00001 BTC',time:'< 1 分钟',confirm:1,rec:false},
+    {id:'btc-bsc',name:'BSC (Wrapped BTC)',fee:'0.00015 BTC',time:'5-15 分钟',confirm:3,rec:false},
+  ],
+  ETH:[
+    {id:'eth-main',name:'Ethereum Network',fee:'0.005 ETH',time:'15-45 分钟',confirm:12,rec:true},
+    {id:'eth-poly',name:'Polygon (MATIC)',fee:'0.001 ETH',time:'2-10 分钟',confirm:256,rec:false},
+  ],
+  USDT:[
+    {id:'usdt-trc',name:'TRON (TRC-20)',fee:'1 USDT',time:'5-30 分钟',confirm:19,rec:true},
+    {id:'usdt-erc',name:'Ethereum (ERC-20)',fee:'5 USDT',time:'15-45 分钟',confirm:12,rec:false},
+  ],
+  USDC:[{id:'usdc-erc',name:'Ethereum (ERC-20)',fee:'3 USDC',time:'15-45 分钟',confirm:12,rec:true}],
+  SOL:[{id:'sol-main',name:'Solana Network',fee:'0.01 SOL',time:'< 1 分钟',confirm:32,rec:true}],
+  XRP:[{id:'xrp-main',name:'XRP Ledger',fee:'0.0001 XRP',time:'3-5 秒',confirm:1,rec:true}],
+  ADA:[{id:'ada-main',name:'Cardano Network',fee:'1 ADA',time:'5-20 分钟',confirm:15,rec:true}],
+  BNB:[{id:'bnb-bsc',name:'BNB Smart Chain',fee:'0.001 BNB',time:'3-5 分钟',confirm:15,rec:true}],
+};
+
+const addresses={
+  'btc-main':'1A1z7agoat4ogyitLwKWaszhAMxpSWHJf',
+  'btc-ln':'lnbc1pvjluezpp5qqqsyq...',
+  'btc-bsc':'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',
+  'eth-main':'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',
+  'eth-poly':'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',
+  'usdt-trc':'TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9',
+  'usdt-erc':'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',
+  'usdc-erc':'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',
+  'sol-main':'7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU',
+  'xrp-main':'rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh',
+  'ada-main':'addr1qxy0...',
+  'bnb-bsc':'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18',
+};
+
+function Toast({msg,show}){
+  if(!show)return null;
+  return <div style={{position:'fixed',bottom:100,left:'50%',transform:'translateX(-50%)',background:'#323232',color:'#FFF',padding:'10px 20px',borderRadius:8,fontSize:14,fontWeight:500,zIndex:300,animation:'fadeIn 0.3s ease'}}>{msg}</div>;
+}
+
+function App(){
+  const[step,setStep]=useState(0);
+  const[selectedCoin,setSelectedCoin]=useState(null);
+  const[selectedNet,setSelectedNet]=useState(null);
+  const[search,setSearch]=useState('');
+  const[copied,setCopied]=useState(false);
+  const[toast,setToast]=useState({show:false,msg:''});
+
+  const showToast=(m)=>{setToast({show:true,msg:m});setTimeout(()=>setToast({show:false,msg:''}),2000);};
+
+  const filteredCoins=coins.filter(c=>
+    c.name.toLowerCase().includes(search.toLowerCase())||c.code.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const coinNetworks=selectedCoin?networks[selectedCoin.code]||[]:[];
+  const address=selectedNet?addresses[selectedNet.id]||'':''
+
+  const handleCopy=()=>{
+    if(address){
+      navigator.clipboard&&navigator.clipboard.writeText(address);
+      setCopied(true);
+      showToast('地址已复制到剪贴板');
+      setTimeout(()=>setCopied(false),2000);
+    }
+  };
+
+  return(
+    <div style={{background:'#F5F5F5',minHeight:'100vh'}}>
+      <div style={{height:59,background:'#FFF'}}/>
+      {/* Header */}
+      <div style={{height:44,background:'#FFF',display:'flex',alignItems:'center',padding:'0 16px',borderBottom:'1px solid #F0F0F0'}}>
+        {step>0&&<div onClick={()=>{if(step===2){setSelectedNet(null);setStep(1);}else{setSelectedCoin(null);setStep(0);}}} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:20,marginRight:8}}>←</div>}
+        <span style={{fontSize:18,fontWeight:700,flex:1}}>
+          {step===0?'充值':step===1?'选择网络 — '+selectedCoin?.code:'充值 '+selectedCoin?.code}
+        </span>
+        <div style={{width:32,height:32,borderRadius:8,background:'#F5F5F5',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:14}}>?</div>
+      </div>
+
+      <div style={{padding:16}}>
+        {/* Step 0: Coin Selection */}
+        {step===0&&(
+          <div style={{animation:'fadeIn 0.3s ease'}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:12}}>选择币种</div>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索币种..."
+              style={{width:'100%',height:44,padding:'0 12px',borderRadius:8,border:'1px solid #E0E0E0',fontSize:14,outline:'none',marginBottom:16,background:'#FFF'}}/>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
+              {filteredCoins.map(c=>(
+                <div key={c.id} onClick={()=>{setSelectedCoin(c);setStep(1);}}
+                  style={{background:'#FFF',borderRadius:8,padding:'12px 4px',textAlign:'center',cursor:'pointer',border:'1px solid #F0F0F0',transition:'all 0.2s'}}>
+                  <div style={{width:40,height:40,borderRadius:'50%',background:'#F0F0F0',margin:'0 auto 6px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:'#757575'}}>{c.code.charAt(0)}</div>
+                  <div style={{fontSize:13,fontWeight:600}}>{c.code}</div>
+                  <div style={{fontSize:10,color:'#9E9E9E'}}>{c.name}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 1: Network Selection */}
+        {step===1&&selectedCoin&&(
+          <div style={{animation:'fadeIn 0.3s ease'}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:4}}>选择网络</div>
+            <div style={{fontSize:12,color:'#757575',marginBottom:16}}>请选择与您发送方一致的网络</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {coinNetworks.map(net=>(
+                <div key={net.id} onClick={()=>{setSelectedNet(net);setStep(2);}}
+                  style={{background:'#FFF',borderRadius:8,padding:16,border:selectedNet?.id===net.id?'2px solid #1A73E8':'1px solid #E0E0E0',cursor:'pointer',display:'flex',alignItems:'center',gap:12}}>
+                  <div style={{width:20,height:20,borderRadius:'50%',border:'2px solid '+(selectedNet?.id===net.id?'#1A73E8':'#BDBDBD'),display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                    {selectedNet?.id===net.id&&<div style={{width:10,height:10,borderRadius:'50%',background:'#1A73E8'}}/>}
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{display:'flex',alignItems:'center',gap:6}}>
+                      <span style={{fontSize:14,fontWeight:600}}>{net.name}</span>
+                      {net.rec&&<span style={{fontSize:10,padding:'2px 6px',borderRadius:8,background:'#E8F5E9',color:'#2E7D32',fontWeight:600}}>推荐</span>}
+                    </div>
+                    <div style={{display:'flex',gap:12,marginTop:4}}>
+                      <span style={{fontSize:12,color:'#757575'}}>费用: {net.fee}</span>
+                      <span style={{fontSize:12,color:'#757575'}}>{net.time}</span>
+                    </div>
+                    <div style={{fontSize:11,color:'#BDBDBD',marginTop:2}}>需要 {net.confirm} 次确认</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Address Display */}
+        {step===2&&selectedCoin&&selectedNet&&(
+          <div style={{animation:'fadeIn 0.3s ease'}}>
+            {/* QR Code placeholder */}
+            <div style={{background:'#FFF',borderRadius:12,padding:20,textAlign:'center',marginBottom:16,boxShadow:'0 2px 8px rgba(0,0,0,0.08)'}}>
+              <div style={{width:160,height:160,margin:'0 auto 12px',background:'#F5F5F5',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:48,color:'#BDBDBD',border:'1px solid #E0E0E0'}}>
+                <svg width="120" height="120" viewBox="0 0 120 120"><rect x="10" y="10" width="30" height="30" fill="#212121"/><rect x="80" y="10" width="30" height="30" fill="#212121"/><rect x="10" y="80" width="30" height="30" fill="#212121"/><rect x="15" y="15" width="20" height="20" fill="white"/><rect x="85" y="15" width="20" height="20" fill="white"/><rect x="15" y="85" width="20" height="20" fill="white"/><rect x="20" y="20" width="10" height="10" fill="#212121"/><rect x="90" y="20" width="10" height="10" fill="#212121"/><rect x="20" y="90" width="10" height="10" fill="#212121"/><rect x="50" y="10" width="5" height="5" fill="#212121"/><rect x="60" y="15" width="5" height="5" fill="#212121"/><rect x="50" y="25" width="5" height="5" fill="#212121"/><rect x="50" y="50" width="20" height="20" fill="#212121"/><rect x="55" y="55" width="10" height="10" fill="white"/><rect x="80" y="50" width="5" height="5" fill="#212121"/><rect x="90" y="60" width="5" height="5" fill="#212121"/><rect x="50" y="80" width="5" height="5" fill="#212121"/><rect x="60" y="90" width="5" height="5" fill="#212121"/><rect x="80" y="80" width="5" height="5" fill="#212121"/><rect x="90" y="90" width="10" height="10" fill="#212121"/><rect x="100" y="80" width="5" height="5" fill="#212121"/></svg>
+              </div>
+              <div style={{fontSize:12,color:'#757575'}}>{selectedCoin.code} — {selectedNet.name}</div>
+            </div>
+
+            {/* Address */}
+            <div style={{background:'#FFF',borderRadius:8,padding:16,marginBottom:16}}>
+              <div style={{fontSize:12,color:'#757575',marginBottom:6}}>充值地址</div>
+              <div style={{fontSize:13,fontFamily:'JetBrains Mono',color:'#212121',wordBreak:'break-all',lineHeight:1.6,marginBottom:8}}>{address}</div>
+              <div style={{display:'flex',gap:8}}>
+                <button onClick={handleCopy} style={{flex:1,height:40,borderRadius:8,border:'none',background:copied?'#E8F5E9':'#1A73E8',color:copied?'#2E7D32':'#FFF',fontSize:14,fontWeight:600,cursor:'pointer'}}>
+                  {copied?'✓ 已复制':'复制地址'}
+                </button>
+                <button style={{width:40,height:40,borderRadius:8,border:'1px solid #E0E0E0',background:'#FFF',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>↗</button>
+              </div>
+              <div style={{fontSize:11,color:'#BDBDBD',marginTop:8}}>地址由 {selectedNet.name} 生成</div>
+            </div>
+
+            {/* Notices */}
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:16}}>
+              <div style={{background:'#FEF3C7',borderRadius:8,padding:12,display:'flex',gap:8,alignItems:'flex-start'}}>
+                <span style={{fontSize:14,flexShrink:0}}>ℹ</span>
+                <span style={{fontSize:12,color:'#92400E'}}>最低充值: 0.001 {selectedCoin.code}</span>
+              </div>
+              <div style={{background:'#FEF3C7',borderRadius:8,padding:12,display:'flex',gap:8,alignItems:'flex-start'}}>
+                <span style={{fontSize:14,flexShrink:0}}>ℹ</span>
+                <span style={{fontSize:12,color:'#92400E'}}>需要 {selectedNet.confirm} 次确认 ({selectedNet.time})</span>
+              </div>
+              <div style={{background:'#FEE2E2',borderRadius:8,padding:12,display:'flex',gap:8,alignItems:'flex-start'}}>
+                <span style={{fontSize:14,flexShrink:0}}>⚠</span>
+                <span style={{fontSize:12,color:'#DC2626',fontWeight:500}}>发送至错误网络的资产将永久丢失。请发送前务必确认网络一致。</span>
+              </div>
+              <div style={{background:'#FEF3C7',borderRadius:8,padding:12,display:'flex',gap:8,alignItems:'flex-start'}}>
+                <span style={{fontSize:14,flexShrink:0}}>ℹ</span>
+                <span style={{fontSize:12,color:'#92400E'}}>请勿从智能合约地址发送</span>
+              </div>
+            </div>
+
+            {/* Generate New */}
+            <button style={{width:'100%',height:48,borderRadius:26,border:'1px solid #1A73E8',background:'#FFF',color:'#1A73E8',fontSize:15,fontWeight:600,cursor:'pointer'}}>
+              生成新地址
+            </button>
+          </div>
+        )}
+      </div>
+
+      <Toast msg={toast.msg} show={toast.show}/>
+    </div>
+  );
+}
+ReactDOM.render(<App/>,document.getElementById('root'));
+</script>
+</body>
+</html>

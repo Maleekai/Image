@@ -12,7 +12,7 @@
 | Phase 1: 竞品学习 | ✅ 完成 | OKX全量分析: okx-complete-analysis.md (74 flows, 429 screenshots) |
 | Phase 1.5: 深度像素分析 | ✅ 完成 | 8份design-spec文档 (共174KB), 9份v0 prompt参考文档 |
 | Phase 2: 设计决策 | ✅ 完成 | 设计决策总纲 + 设计系统规范 + 9份v0 Prompt (00-08, 共101KB) |
-| Phase 3: 原型生成 | 🔲 待开始 | → v0.dev 在线原型 |
+| Phase 3: 原型生成 | ✅ 完成 | 9份React交互原型 (00-08, 共182KB, prototypes/*.html) |
 | Phase 4: Figma精调 | 🔲 待开始 | → Figma 高保真设计 |
 | Phase 5: 文档更新 | 🔲 待开始 | → PRD v2.0 + FRD v2.0 |
 
@@ -73,16 +73,26 @@ Image/ (GitHub repo root)
     ├── design-decisions/             ← Phase 2 输出：设计决策 (已完成 ✅)
     │   ├── zr-design-decisions.md         ← ✅ 设计决策总纲 (12直接借鉴+12差异化+8创新+5原则)
     │   └── zr-design-system.md            ← ✅ 设计系统规范 (色彩/字体/间距/组件)
-    └── v0-prompts/                   ← Phase 2 输出：v0 Prompt集 (已完成 ✅)
-        ├── 00-design-system.md            ← ✅ 全局设计系统组件
-        ├── 01-market-list.md              ← ✅ 行情列表页
-        ├── 02-symbol-detail.md            ← ✅ 币种详情(K线)
-        ├── 03-trade-order.md              ← ✅ 交易下单(含冷静期)
-        ├── 04-order-management.md          ← ✅ 委托管理
-        ├── 05-assets.md                     ← ✅ 资产总览
-        ├── 06-deposit.md                    ← ✅ 充值页面
-        ├── 07-withdraw.md                   ← ✅ 提币页面(含安全验证)
-        └── 08-onboarding.md                 ← ✅ 开户流程(5屏)
+    ├── v0-prompts/                   ← Phase 2 输出：v0 Prompt集 (已完成 ✅)
+    │   ├── 00-design-system.md            ← ✅ 全局设计系统组件
+    │   ├── 01-market-list.md              ← ✅ 行情列表页
+    │   ├── 02-symbol-detail.md            ← ✅ 币种详情(K线)
+    │   ├── 03-trade-order.md              ← ✅ 交易下单(含冷静期)
+    │   ├── 04-order-management.md         ← ✅ 委托管理
+    │   ├── 05-assets.md                   ← ✅ 资产总览
+    │   ├── 06-deposit.md                  ← ✅ 充值页面
+    │   ├── 07-withdraw.md                 ← ✅ 提币页面(含安全验证)
+    │   └── 08-onboarding.md               ← ✅ 开户流程(5屏)
+    └── prototypes/                  ← Phase 3 输出：React交互原型 (已完成 ✅)
+        ├── 00-design-system.html          ← ✅ 设计系统组件展示 (20KB)
+        ├── 01-market-list.html            ← ✅ 行情列表页 (18KB)
+        ├── 02-symbol-detail.html          ← ✅ 币种详情/K线 (23KB)
+        ├── 03-trade-order.html            ← ✅ 交易下单(含冷静期) (28KB)
+        ├── 04-order-management.html       ← ✅ 委托管理(多交易所) (27KB)
+        ├── 05-assets.html                 ← ✅ 资产总览(多交易所聚合) (13KB)
+        ├── 06-deposit.html                ← ✅ 充值(3步选币→网络→地址) (14KB)
+        ├── 07-withdraw.html               ← ✅ 提币(含OTP安全验证) (16KB)
+        └── 08-onboarding.html             ← ✅ 开户流程(5屏KYC) (23KB)
 ```
 
 ---
@@ -162,7 +172,7 @@ Binance的1811张截图（248 Flows）可作为Phase 1.5单独分析，重点关
 
 ---
 
-## Phase 2 执行指南: 设计决策 + v0 Prompt 🔄 进行中
+## Phase 2 执行指南: 设计决策 + v0 Prompt ✅ 已完成
 
 ### 前置条件 ✅
 Phase 1 OKX全量分析已完成 (`okx-complete-analysis.md`)
@@ -185,32 +195,34 @@ Phase 1 OKX全量分析已完成 (`okx-complete-analysis.md`)
 
 ---
 
-## Phase 3 执行指南: v0 原型生成
+## Phase 3 执行指南: React 交互原型 ✅ 已完成
 
-### 准备上传到 v0.dev 的文件
+### 完成状态
 
-```
-上传文件清单：
-1. zr-design-decisions.md
-2. zr-design-system.md
-3. zr-v0-prompts-updated.md (所有prompt合集)
-4. 之前的PRD文档 (业务上下文)
-5. 之前的FRD文档 (功能规格)
-```
+由于v0.dev浏览器自动化不可用，改为直接生成自包含React原型HTML文件。每个文件可在任何浏览器中直接打开，无需构建工具。
 
-### v0 操作顺序
+**技术栈**: React 18 (CDN) + Babel Standalone (JSX) + Tailwind CSS (CDN) + Inter/JetBrains Mono
 
-```
-Step 1: 设计系统组件 → 00-design-system.md
-Step 2: 行情列表 → 01-market-list.md
-Step 3: 币种详情 → 02-symbol-detail.md
-Step 4: 交易下单 → 03-trade-order.md
-Step 5: 委托管理 → 04-order-management.md
-Step 6: 资产总览 → 05-assets.md
-Step 7: 充值页面 → 06-deposit.md
-Step 8: 提币页面 → 07-withdraw.md
-Step 9: 开户流程 → 08-onboarding.md
-```
+**产出文件** (9份, 共182KB):
+
+| # | 文件 | 描述 | 尺寸 |
+|---|------|------|------|
+| 00 | design-system.html | 14个核心组件展示 (按钮/输入/Badge/Modal等) | 20KB |
+| 01 | market-list.html | 行情列表 (4资产类别, 实时价格模拟) | 18KB |
+| 02 | symbol-detail.html | 币种详情/K线图 (时间周期切换, 盘口) | 23KB |
+| 03 | trade-order.html | 交易下单 (限价/市价, 冷静期28s倒计时) | 28KB |
+| 04 | order-management.html | 委托管理 (10条订单, 4交易所, 实时成交模拟) | 27KB |
+| 05 | assets.html | 资产总览 (多交易所聚合, 隐藏余额, 粉尘过滤) | 13KB |
+| 06 | deposit.html | 充值 (3步: 选币→网络→地址/二维码) | 14KB |
+| 07 | withdraw.html | 提币 (4步: 表单→邮箱OTP→手机OTP→成功) | 16KB |
+| 08 | onboarding.html | 开户 (5屏: 欢迎→注册→OTP→KYC三步→成功) | 23KB |
+
+**关键交互特性**:
+- 所有页面390px移动端视窗, 遵循ZR设计系统
+- 多交易所色彩体系 (HashKey蓝/Bullish绿/OSL橙/VDX紫)
+- 反脆弱交互: 冷静期倒计时Modal, 安全验证多因子
+- SFC合规: 风险披露, KYC流程, 风险评估
+- 实时模拟: 价格变动, 订单成交, WebSocket仿真
 
 ---
 
@@ -227,5 +239,5 @@ Step 9: 开户流程 → 08-onboarding.md
 
 ---
 
-*Last Updated: 2026-03-04*
+*Last Updated: 2026-03-05*
 *Maintainer: 余博 (Maleekai) · CPO, ZR Securities*

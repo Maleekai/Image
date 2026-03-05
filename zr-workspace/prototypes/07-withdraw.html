@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — 提币</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--brand-blue:#1A73E8;--success:#22C55E;--error:#EF4444;--warning:#F59E0B}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:#F5F5F5;max-width:390px;margin:0 auto}
+.mono{font-family:'JetBrains Mono',monospace}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect}=React;
+
+function Toast({msg,show,type}){
+  if(!show)return null;
+  const bg=type==='error'?'#EF4444':type==='success'?'#22C55E':'#323232';
+  return <div style={{position:'fixed',bottom:60,left:'50%',transform:'translateX(-50%)',background:bg,color:'#FFF',padding:'10px 20px',borderRadius:8,fontSize:14,fontWeight:500,zIndex:300,animation:'fadeIn 0.3s ease'}}>{msg}</div>;
+}
+
+function OTPInput({length=6,onComplete}){
+  const[digits,setDigits]=useState(Array(length).fill(''));
+  const[active,setActive]=useState(0);
+  const handleKey=(i,e)=>{
+    const val=e.target.value;
+    if(/^\d$/.test(val)){
+      const nd=[...digits];nd[i]=val;setDigits(nd);
+      if(i<length-1)setActive(i+1);
+      if(nd.every(d=>d!==''))onComplete&&onComplete(nd.join(''));
+    }else if(e.nativeEvent.inputType==='deleteContentBackward'){
+      const nd=[...digits];nd[i]='';setDigits(nd);if(i>0)setActive(i-1);
+    }
+  };
+  return(
+    <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+      {digits.map((d,i)=>(
+        <input key={i} value={d} maxLength={1}
+          onChange={e=>handleKey(i,e)} onFocus={()=>setActive(i)}
+          ref={el=>{if(el&&i===active)el.focus();}}
+          style={{
+            width:48,height:48,borderRadius:8,textAlign:'center',
+            border:(i===active?'2px solid #1A73E8':'1px solid #E0E0E0'),
+            fontSize:20,fontFamily:'JetBrains Mono',fontWeight:600,outline:'none',
+            background:'#FFF',color:'#212121'
+          }}/>
+      ))}
+    </div>
+  );
+}
+
+function App(){
+  const[step,setStep]=useState(0); // 0=form,1=emailOTP,2=phoneOTP,3=success
+  const[address,setAddress]=useState('');
+  const[addrValid,setAddrValid]=useState(null); // null|'valid'|'invalid'|'checking'
+  const[amount,setAmount]=useState('');
+  const[network,setNetwork]=useState('btc-main');
+  const[toast,setToast]=useState({show:false,msg:'',type:''});
+  const[countdown,setCountdown]=useState(0);
+
+  const available=0.5234;
+  const fee=0.0005;
+  const receive=amount?(parseFloat(amount)-fee).toFixed(8):'0';
+  const feeUSD=25;
+
+  const networks=[
+    {id:'btc-main',name:'Bitcoin Network',fee:'0.0005 BTC',time:'10-30 分钟'},
+    {id:'btc-ln',name:'Lightning Network',fee:'0.00001 BTC',time:'< 1 分钟'},
+  ];
+
+  const showToast=(msg,type='info')=>{setToast({show:true,msg,type});setTimeout(()=>setToast({show:false,msg:'',type:''}),2500);};
+
+  // Address validation simulation
+  useEffect(()=>{
+    if(!address){setAddrValid(null);return;}
+    setAddrValid('checking');
+    const t=setTimeout(()=>{
+      setAddrValid(address.length>=26?'valid':'invalid');
+    },800);
+    return()=>clearTimeout(t);
+  },[address]);
+
+  const startCountdown=()=>{setCountdown(60);};
+  useEffect(()=>{
+    if(countdown<=0)return;
+    const t=setTimeout(()=>setCountdown(c=>c-1),1000);
+    return()=>clearTimeout(t);
+  },[countdown]);
+
+  const canSubmit=addrValid==='valid'&&amount&&parseFloat(amount)>0&&parseFloat(amount)<=available;
+
+  const handleSubmit=()=>{if(canSubmit){setStep(1);startCountdown();}};
+
+  return(
+    <div style={{background:'#F5F5F5',minHeight:'100vh'}}>
+      <div style={{height:59,background:'#FFF'}}/>
+      {/* Header */}
+      <div style={{height:44,background:'#FFF',display:'flex',alignItems:'center',padding:'0 16px',borderBottom:'1px solid #F0F0F0'}}>
+        {step>0&&step<3&&<div onClick={()=>setStep(s=>s-1)} style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:20,marginRight:8}}>←</div>}
+        <span style={{fontSize:18,fontWeight:700,flex:1}}>
+          {step===0?'提币 BTC':step===1?'邮箱验证':step===2?'手机验证':'提币成功'}
+        </span>
+        <div style={{width:32,height:32,borderRadius:8,background:'#F5F5F5',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:14}}>📜</div>
+      </div>
+
+      {/* Progress bar */}
+      {step>0&&step<3&&(
+        <div style={{display:'flex',gap:4,padding:'12px 16px',background:'#FFF'}}>
+          {[1,2,3].map(s=>(
+            <div key={s} style={{flex:1,height:4,borderRadius:2,background:s<=step?'#1A73E8':s===step+1?'#B3D4FC':'#E0E0E0'}}/>
+          ))}
+        </div>
+      )}
+
+      <div style={{padding:16}}>
+        {/* Step 0: Withdraw Form */}
+        {step===0&&(
+          <div style={{animation:'fadeIn 0.3s ease'}}>
+            {/* Address Input */}
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:14,fontWeight:600,marginBottom:6}}>收款地址</div>
+              <div style={{position:'relative'}}>
+                <textarea value={address} onChange={e=>setAddress(e.target.value)} placeholder="粘贴钱包地址"
+                  rows={2} style={{width:'100%',padding:'12px 80px 12px 12px',borderRadius:8,border:'1px solid '+(addrValid==='invalid'?'#EF4444':addrValid==='valid'?'#22C55E':'#E0E0E0'),fontSize:13,fontFamily:'JetBrains Mono',outline:'none',resize:'none',background:'#FFF'}}/>
+                <div style={{position:'absolute',right:12,top:12,display:'flex',gap:8}}>
+                  <div style={{width:28,height:28,borderRadius:6,background:'#E8F0FE',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:14}}>📷</div>
+                  <div style={{width:28,height:28,borderRadius:6,background:'#F5F5F5',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:14}}>📒</div>
+                </div>
+              </div>
+              {addrValid==='checking'&&<div style={{fontSize:12,color:'#757575',marginTop:4,display:'flex',alignItems:'center',gap:4}}><span style={{display:'inline-block',width:12,height:12,border:'2px solid #1A73E8',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 0.6s linear infinite'}}/>验证中...</div>}
+              {addrValid==='valid'&&<div style={{fontSize:12,color:'#22C55E',marginTop:4}}>✓ 地址格式验证通过</div>}
+              {addrValid==='invalid'&&<div style={{fontSize:12,color:'#EF4444',marginTop:4}}>✗ 地址格式不正确</div>}
+            </div>
+
+            {/* Network */}
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:14,fontWeight:600,marginBottom:6}}>选择网络</div>
+              <div style={{display:'flex',gap:8}}>
+                {networks.map(n=>(
+                  <div key={n.id} onClick={()=>setNetwork(n.id)} style={{
+                    flex:1,padding:12,borderRadius:8,border:network===n.id?'2px solid #1A73E8':'1px solid #E0E0E0',
+                    background:'#FFF',cursor:'pointer'
+                  }}>
+                    <div style={{fontSize:13,fontWeight:600}}>{n.name}</div>
+                    <div style={{fontSize:11,color:'#757575',marginTop:2}}>{n.fee}</div>
+                    <div style={{fontSize:11,color:'#BDBDBD'}}>{n.time}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Amount */}
+            <div style={{marginBottom:16}}>
+              <div style={{fontSize:14,fontWeight:600,marginBottom:6}}>提币数量</div>
+              <div style={{display:'flex',alignItems:'center',height:56,background:'#FFF',borderRadius:8,padding:'0 12px',border:'1px solid #E0E0E0'}}>
+                <input value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0.00" type="number" step="any"
+                  style={{flex:1,border:'none',background:'transparent',fontSize:24,fontWeight:600,fontFamily:'JetBrains Mono',outline:'none',color:'#212121'}}/>
+                <span onClick={()=>setAmount(String(available))} style={{color:'#1A73E8',fontSize:14,fontWeight:600,cursor:'pointer',marginRight:8}}>全部</span>
+                <span style={{fontSize:15,color:'#757575',fontWeight:500}}>BTC</span>
+              </div>
+              <div style={{fontSize:12,color:'#757575',marginTop:4}}>可用余额: <span className="mono">{available} BTC</span></div>
+            </div>
+
+            {/* Fee Preview */}
+            <div style={{background:'#FFF',borderRadius:8,padding:16,marginBottom:16}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+                <span style={{fontSize:13,color:'#757575'}}>网络手续费</span>
+                <span style={{fontSize:13,fontFamily:'JetBrains Mono',fontWeight:600}}>{fee} BTC <span style={{color:'#BDBDBD',fontWeight:400}}>≈ ${feeUSD}</span></span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between'}}>
+                <span style={{fontSize:13,color:'#757575'}}>实际到账</span>
+                <span style={{fontSize:14,fontFamily:'JetBrains Mono',fontWeight:700,color:parseFloat(receive)>0?'#212121':'#BDBDBD'}}>{parseFloat(receive)>0?receive:'0'} BTC</span>
+              </div>
+            </div>
+
+            {/* Warning */}
+            <div style={{background:'#FEE2E2',borderRadius:8,padding:12,marginBottom:16,display:'flex',gap:8,alignItems:'flex-start'}}>
+              <span style={{fontSize:14,flexShrink:0}}>⚠</span>
+              <span style={{fontSize:12,color:'#DC2626',fontWeight:500}}>请确认提币地址和网络正确。发送至错误地址或网络的资产将无法找回。</span>
+            </div>
+
+            {/* Submit */}
+            <button onClick={handleSubmit} disabled={!canSubmit} style={{
+              width:'100%',height:52,borderRadius:26,border:'none',
+              background:canSubmit?'#1A73E8':'#E5E5EA',color:canSubmit?'#FFF':'#BDBDBD',
+              fontSize:17,fontWeight:600,cursor:canSubmit?'pointer':'default'
+            }}>提交提币申请</button>
+          </div>
+        )}
+
+        {/* Step 1: Email OTP */}
+        {step===1&&(
+          <div style={{animation:'fadeIn 0.3s ease',textAlign:'center',paddingTop:20}}>
+            <div style={{width:64,height:64,borderRadius:'50%',background:'#E8F0FE',margin:'0 auto 16px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28}}>✉</div>
+            <div style={{fontSize:17,fontWeight:700,marginBottom:8}}>邮箱验证码</div>
+            <div style={{fontSize:13,color:'#757575',marginBottom:24}}>验证码已发送至 m***@zr.hk</div>
+            <OTPInput onComplete={(code)=>{showToast('邮箱验证通过','success');setTimeout(()=>{setStep(2);startCountdown();},800);}}/>
+            <div style={{marginTop:16}}>
+              {countdown>0?
+                <span style={{fontSize:13,color:'#BDBDBD'}}>{countdown}s 后可重新发送</span>:
+                <span onClick={startCountdown} style={{fontSize:13,color:'#1A73E8',cursor:'pointer',fontWeight:600}}>重新发送验证码</span>
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Phone OTP */}
+        {step===2&&(
+          <div style={{animation:'fadeIn 0.3s ease',textAlign:'center',paddingTop:20}}>
+            <div style={{width:64,height:64,borderRadius:'50%',background:'#E8F0FE',margin:'0 auto 16px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28}}>📱</div>
+            <div style={{fontSize:17,fontWeight:700,marginBottom:8}}>手机验证码</div>
+            <div style={{fontSize:13,color:'#757575',marginBottom:24}}>验证码已发送至 +852 ****1234</div>
+            <OTPInput onComplete={(code)=>{showToast('提币申请已提交','success');setTimeout(()=>setStep(3),800);}}/>
+            <div style={{marginTop:16}}>
+              {countdown>0?
+                <span style={{fontSize:13,color:'#BDBDBD'}}>{countdown}s 后可重新发送</span>:
+                <span onClick={startCountdown} style={{fontSize:13,color:'#1A73E8',cursor:'pointer',fontWeight:600}}>重新发送验证码</span>
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Success */}
+        {step===3&&(
+          <div style={{animation:'fadeIn 0.3s ease',textAlign:'center',paddingTop:40}}>
+            <div style={{width:80,height:80,borderRadius:'50%',background:'#E8F5E9',margin:'0 auto 16px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:36}}>✓</div>
+            <div style={{fontSize:20,fontWeight:700,marginBottom:8}}>提币申请已提交</div>
+            <div style={{fontSize:14,color:'#757575',marginBottom:24}}>预计 10-30 分钟到账</div>
+
+            <div style={{background:'#FFF',borderRadius:12,padding:16,textAlign:'left',marginBottom:24}}>
+              <div style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #F5F5F5'}}>
+                <span style={{fontSize:13,color:'#757575'}}>数量</span>
+                <span style={{fontSize:13,fontFamily:'JetBrains Mono',fontWeight:600}}>{amount} BTC</span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #F5F5F5'}}>
+                <span style={{fontSize:13,color:'#757575'}}>手续费</span>
+                <span style={{fontSize:13,fontFamily:'JetBrains Mono',fontWeight:600}}>{fee} BTC</span>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #F5F5F5'}}>
+                <span style={{fontSize:13,color:'#757575'}}>实际到账</span>
+                <span style={{fontSize:13,fontFamily:'JetBrains Mono',fontWeight:700}}>{receive} BTC</span>
+              </div>
+              <div style={{padding:'8px 0'}}>
+                <span style={{fontSize:13,color:'#757575'}}>收款地址</span>
+                <div style={{fontSize:12,fontFamily:'JetBrains Mono',color:'#212121',wordBreak:'break-all',marginTop:4}}>{address}</div>
+              </div>
+            </div>
+
+            <div style={{display:'flex',gap:12}}>
+              <button onClick={()=>{setStep(0);setAddress('');setAmount('');setAddrValid(null);}} style={{flex:1,height:48,borderRadius:24,border:'1px solid #E0E0E0',background:'#FFF',fontSize:15,fontWeight:600,cursor:'pointer',color:'#5F6368'}}>
+                继续提币
+              </button>
+              <button style={{flex:1,height:48,borderRadius:24,border:'none',background:'#1A73E8',color:'#FFF',fontSize:15,fontWeight:600,cursor:'pointer'}}>
+                查看记录
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Toast msg={toast.msg} show={toast.show} type={toast.type}/>
+    </div>
+  );
+}
+ReactDOM.render(<App/>,document.getElementById('root'));
+</script>
+</body>
+</html>

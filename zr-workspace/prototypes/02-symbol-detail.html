@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — Symbol Detail (K-line) Page</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --brand-blue: #1A73E8;
+  --success: #34A853;
+  --danger: #EA4335;
+  --neutral: #5F6368;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FA;
+  --text-primary: #212121;
+  --text-secondary: #5F6368;
+  --border: #E8EAED;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-secondary);
+  max-width: 390px;
+  margin: 0 auto;
+  color: var(--text-primary);
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ========= MOCK DATA ========= */
+const mockOrderBook = {
+  asks: [
+    { price: 28457.50, amount: 0.5234, depth: 45 },
+    { price: 28458.75, amount: 0.8956, depth: 72 },
+    { price: 28460.00, amount: 0.3421, depth: 25 },
+    { price: 28461.25, amount: 1.2341, depth: 88 },
+    { price: 28462.50, amount: 0.6789, depth: 52 }
+  ],
+  bids: [
+    { price: 28456.25, amount: 0.9876, depth: 78 },
+    { price: 28455.00, amount: 0.4567, depth: 35 },
+    { price: 28453.75, amount: 1.1234, depth: 92 },
+    { price: 28452.50, amount: 0.7654, depth: 60 },
+    { price: 28451.25, amount: 0.5432, depth: 40 }
+  ]
+};
+
+const mockTrades = [
+  { id: 'trade-1', timestamp: new Date(Date.now() - 2000), price: 28456.75, amount: 1.2341, direction: 'buy' },
+  { id: 'trade-2', timestamp: new Date(Date.now() - 5000), price: 28455.50, amount: 0.5678, direction: 'sell' },
+  { id: 'trade-3', timestamp: new Date(Date.now() - 8000), price: 28457.00, amount: 2.3456, direction: 'buy' },
+  { id: 'trade-4', timestamp: new Date(Date.now() - 12000), price: 28454.25, amount: 0.8765, direction: 'sell' },
+  { id: 'trade-5', timestamp: new Date(Date.now() - 15000), price: 28456.00, amount: 1.5432, direction: 'buy' },
+  { id: 'trade-6', timestamp: new Date(Date.now() - 18000), price: 28453.50, amount: 0.3210, direction: 'sell' },
+  { id: 'trade-7', timestamp: new Date(Date.now() - 22000), price: 28458.50, amount: 0.9999, direction: 'buy' },
+  { id: 'trade-8', timestamp: new Date(Date.now() - 25000), price: 28452.00, amount: 1.8765, direction: 'sell' }
+];
+
+const mockSymbolDetail = {
+  symbol: 'BTC/USDT',
+  name: 'Bitcoin',
+  exchange: 'HashKey',
+  currentPrice: 28456.75,
+  change24h: 5.42,
+  change24hAmount: 1456.25,
+  open: 27000.50,
+  high: 28900.00,
+  low: 27500.00,
+  close: 28456.75,
+  volume: 125670.543,
+  isWatchlisted: false
+};
+
+/* ========= CANDLESTICK CHART COMPONENT ========= */
+function CandlestickChart() {
+  const width = 390;
+  const height = 250;
+  const padding = 40;
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  // Generate mock candle data (20 candles)
+  const candles = Array.from({ length: 20 }, (_, i) => {
+    const open = 27000 + Math.random() * 2000;
+    const close = open + (Math.random() - 0.5) * 1000;
+    const high = Math.max(open, close) + Math.random() * 500;
+    const low = Math.min(open, close) - Math.random() * 500;
+    return { open, close, high, low };
+  });
+
+  const minPrice = Math.min(...candles.flatMap(c => [c.low]));
+  const maxPrice = Math.max(...candles.flatMap(c => [c.high]));
+  const priceRange = maxPrice - minPrice || 1;
+
+  const scalePrice = (price) => {
+    return chartHeight - ((price - minPrice) / priceRange) * chartHeight + padding;
+  };
+
+  const candleWidth = chartWidth / candles.length;
+  const wickWidth = 1;
+  const bodyWidth = candleWidth * 0.6;
+
+  return (
+    <svg width={width} height={height} style={{ background: 'var(--bg-secondary)', borderRadius: '8px' }}>
+      {/* Grid lines */}
+      {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
+        const y = chartHeight * (1 - ratio) + padding;
+        const price = minPrice + ratio * priceRange;
+        return (
+          <g key={`grid-${i}`}>
+            <line x1={padding} y1={y} x2={width - padding} y2={y} stroke="var(--border)" strokeWidth="1" strokeDasharray="2,2"/>
+            <text x={padding - 5} y={y + 4} fontSize="10" textAnchor="end" fill="var(--text-secondary)" fontFamily="JetBrains Mono">
+              {price.toFixed(0)}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* Candles */}
+      {candles.map((candle, i) => {
+        const isUp = candle.close >= candle.open;
+        const x = padding + (i + 0.5) * candleWidth;
+        const openY = scalePrice(candle.open);
+        const closeY = scalePrice(candle.close);
+        const highY = scalePrice(candle.high);
+        const lowY = scalePrice(candle.low);
+        const bodyTop = Math.min(openY, closeY);
+        const bodyHeight = Math.abs(closeY - openY) || 2;
+        const color = isUp ? 'var(--success)' : 'var(--danger)';
+
+        return (
+          <g key={`candle-${i}`}>
+            {/* Wick */}
+            <line x1={x} y1={highY} x2={x} y2={lowY} stroke={color} strokeWidth={wickWidth}/>
+            {/* Body */}
+            <rect x={x - bodyWidth/2} y={bodyTop} width={bodyWidth} height={bodyHeight} fill={color} stroke={color} strokeWidth="1"/>
+            {/* Time label */}
+            {i % 5 === 0 && (
+              <text x={x} y={height - 10} fontSize="10" textAnchor="middle" fill="var(--text-secondary)" fontFamily="Inter">
+                {`${i * 4}:00`}
+              </text>
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* ========= NAVIGATION BAR ========= */
+function NavBar({ onBack, symbol, isWatchlisted, onToggleStar }) {
+  return (
+    <div style={{
+      height: 44,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingLeft: 12,
+      paddingRight: 12,
+      background: 'var(--bg-primary)',
+      borderBottom: `1px solid var(--border)`
+    }}>
+      {/* Back button */}
+      <button onClick={onBack} style={{
+        width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 24
+      }}>
+        ←
+      </button>
+
+      {/* Symbol name */}
+      <div style={{
+        flex: 1, textAlign: 'center', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)'
+      }}>
+        {symbol}
+      </div>
+
+      {/* Star and Share buttons */}
+      <div style={{ display: 'flex', gap: 4 }}>
+        <button onClick={onToggleStar} style={{
+          width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 20
+        }}>
+          {isWatchlisted ? '★' : '☆'}
+        </button>
+        <button style={{
+          width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 20
+        }}>
+          ↗
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ========= PRICE HEADER ========= */
+function PriceHeader({ symbol, currentPrice, change24h, change24hAmount, open, high, low, close, exchange }) {
+  const isPositive = change24h >= 0;
+  const priceColor = isPositive ? 'var(--success)' : 'var(--danger)';
+
+  return (
+    <div style={{
+      background: 'var(--bg-primary)',
+      padding: '16px',
+      borderBottom: `1px solid var(--border)`
+    }}>
+      {/* Exchange badge */}
+      <div style={{ marginBottom: 12 }}>
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          height: 20,
+          padding: '0 8px',
+          borderRadius: 10,
+          background: '#E8EEFF',
+          color: '#2962FF',
+          fontSize: 12,
+          fontWeight: 500,
+          fontFamily: 'Inter'
+        }}>
+          {exchange}
+        </span>
+      </div>
+
+      {/* Current price */}
+      <div style={{
+        fontSize: 28,
+        fontWeight: 700,
+        fontFamily: 'JetBrains Mono',
+        color: priceColor,
+        marginBottom: 8
+      }}>
+        {currentPrice.toFixed(2)}
+      </div>
+
+      {/* 24h change badge */}
+      <div style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        height: 24,
+        padding: '4px 8px',
+        borderRadius: 4,
+        background: isPositive ? 'var(--success)' : 'var(--danger)',
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: 600,
+        fontFamily: 'JetBrains Mono',
+        marginBottom: 12
+      }}>
+        {isPositive ? '+' : ''}{change24h.toFixed(2)}% (↑{change24hAmount.toFixed(2)})
+      </div>
+
+      {/* OHLC row */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '1px',
+        background: 'var(--border)',
+        borderRadius: 4,
+        overflow: 'hidden'
+      }}>
+        {[
+          { label: 'O', value: open },
+          { label: 'H', value: high },
+          { label: 'L', value: low },
+          { label: 'C', value: close }
+        ].map((item, idx) => (
+          <div key={idx} style={{
+            background: 'var(--bg-secondary)',
+            padding: '8px',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              fontSize: 10,
+              color: 'var(--text-secondary)',
+              fontWeight: 600,
+              marginBottom: 4,
+              fontFamily: 'Inter'
+            }}>
+              {item.label}
+            </div>
+            <div style={{
+              fontSize: 12,
+              fontWeight: 600,
+              fontFamily: 'JetBrains Mono',
+              color: 'var(--text-primary)'
+            }}>
+              {item.value.toFixed(2)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ========= TIME PERIOD TABS ========= */
+function TimePeriodTabs({ activeTab, onTabChange }) {
+  const tabs = ['15m', '1H', '4H', '1D', '1W', '1M', 'ALL'];
+
+  return (
+    <div style={{
+      display: 'flex',
+      gap: 8,
+      padding: '12px 16px',
+      overflowX: 'auto',
+      background: 'var(--bg-primary)',
+      borderBottom: `1px solid var(--border)`,
+      scrollBehavior: 'smooth'
+    }}>
+      {tabs.map((tab, idx) => (
+        <button
+          key={tab}
+          onClick={() => onTabChange(idx)}
+          style={{
+            height: 36,
+            padding: '0 12px',
+            border: 'none',
+            borderRadius: 4,
+            background: idx === activeTab ? 'var(--brand-blue)' : 'transparent',
+            color: idx === activeTab ? '#FFFFFF' : 'var(--text-secondary)',
+            fontSize: 12,
+            fontWeight: 500,
+            fontFamily: 'Inter',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ========= ORDER BOOK VIEW ========= */
+function OrderBookView({ orderBook }) {
+  const maxDepth = Math.max(...orderBook.asks.map(a => a.depth), ...orderBook.bids.map(b => b.depth));
+
+  return (
+    <div style={{
+      background: 'var(--bg-primary)',
+      borderBottom: `1px solid var(--border)`
+    }}>
+      {/* Asks (red, inverted) */}
+      <div>
+        {[...orderBook.asks].reverse().map((ask, idx) => (
+          <div key={`ask-${idx}`} style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: 32,
+            padding: '0 8px',
+            borderBottom: `1px solid var(--border)`,
+            background: 'var(--bg-secondary)',
+            position: 'relative'
+          }}>
+            {/* Depth bar background */}
+            <div style={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: (ask.depth / maxDepth) * 60,
+              background: 'rgba(234, 67, 53, 0.1)',
+              zIndex: 0
+            }}/>
+
+            {/* Price */}
+            <div style={{
+              width: 80,
+              textAlign: 'right',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--danger)',
+              fontFamily: 'JetBrains Mono',
+              zIndex: 1
+            }}>
+              {ask.price.toFixed(2)}
+            </div>
+
+            {/* Amount */}
+            <div style={{
+              flex: 1,
+              textAlign: 'center',
+              fontSize: 11,
+              color: 'var(--text-secondary)',
+              fontFamily: 'JetBrains Mono',
+              zIndex: 1
+            }}>
+              {ask.amount.toFixed(4)}
+            </div>
+
+            {/* Depth percentage */}
+            <div style={{
+              width: 30,
+              textAlign: 'right',
+              fontSize: 10,
+              color: 'var(--text-secondary)',
+              fontFamily: 'JetBrains Mono',
+              zIndex: 1
+            }}>
+              {ask.depth}%
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Divider */}
+      <div style={{
+        height: 2,
+        background: 'var(--border)',
+        fontFamily: 'JetBrains Mono',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 10,
+        color: 'var(--text-secondary)'
+      }}>
+        28456.50 USDT
+      </div>
+
+      {/* Bids (green) */}
+      <div>
+        {orderBook.bids.map((bid, idx) => (
+          <div key={`bid-${idx}`} style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: 32,
+            padding: '0 8px',
+            borderBottom: idx < orderBook.bids.length - 1 ? `1px solid var(--border)` : 'none',
+            background: 'var(--bg-secondary)',
+            position: 'relative'
+          }}>
+            {/* Depth bar background */}
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: (bid.depth / maxDepth) * 60,
+              background: 'rgba(52, 168, 83, 0.1)',
+              zIndex: 0
+            }}/>
+
+            {/* Price */}
+            <div style={{
+              width: 80,
+              textAlign: 'left',
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--success)',
+              fontFamily: 'JetBrains Mono',
+              zIndex: 1
+            }}>
+              {bid.price.toFixed(2)}
+            </div>
+
+            {/* Amount */}
+            <div style={{
+              flex: 1,
+              textAlign: 'center',
+              fontSize: 11,
+              color: 'var(--text-secondary)',
+              fontFamily: 'JetBrains Mono',
+              zIndex: 1
+            }}>
+              {bid.amount.toFixed(4)}
+            </div>
+
+            {/* Depth percentage */}
+            <div style={{
+              width: 30,
+              textAlign: 'right',
+              fontSize: 10,
+              color: 'var(--text-secondary)',
+              fontFamily: 'JetBrains Mono',
+              zIndex: 1
+            }}>
+              {bid.depth}%
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ========= TRADES VIEW ========= */
+function TradesView({ trades }) {
+  return (
+    <div style={{
+      background: 'var(--bg-primary)',
+      borderBottom: `1px solid var(--border)`,
+      maxHeight: 200,
+      overflowY: 'auto'
+    }}>
+      {trades.map((trade) => {
+        const isB uy = trade.direction === 'buy';
+        const timeStr = new Date(trade.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        return (
+          <div key={trade.id} style={{
+            display: 'flex',
+            alignItems: 'center',
+            height: 32,
+            padding: '0 8px',
+            borderBottom: `1px solid var(--border)`,
+            background: 'var(--bg-secondary)'
+          }}>
+            {/* Timestamp */}
+            <div style={{
+              width: 50,
+              fontSize: 10,
+              color: 'var(--text-secondary)',
+              fontFamily: 'Inter'
+            }}>
+              {timeStr}
+            </div>
+
+            {/* Price */}
+            <div style={{
+              width: 80,
+              fontSize: 12,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              fontFamily: 'JetBrains Mono'
+            }}>
+              {trade.price.toFixed(2)}
+            </div>
+
+            {/* Amount */}
+            <div style={{
+              flex: 1,
+              textAlign: 'right',
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--text-secondary)',
+              fontFamily: 'JetBrains Mono'
+            }}>
+              {trade.amount.toFixed(4)}
+            </div>
+
+            {/* Direction indicator */}
+            <div style={{
+              width: 16,
+              height: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: isBuy ? 'var(--success)' : 'var(--danger)',
+              fontSize: 12
+            }}>
+              {isBuy ? '▲' : '▼'}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ========= MAIN APP COMPONENT ========= */
+function SymbolDetailPage() {
+  const [isWatchlisted, setIsWatchlisted] = useState(mockSymbolDetail.isWatchlisted);
+  const [activeTab, setActiveTab] = useState(3); // 1D by default
+  const [showView, setShowView] = useState('orderbook'); // 'orderbook' or 'trades'
+  const [currentPrice, setCurrentPrice] = useState(mockSymbolDetail.currentPrice);
+  const [orderBook, setOrderBook] = useState(mockOrderBook);
+
+  // Simulate real-time price updates
+  useEffect(() => {
+    const priceInterval = setInterval(() => {
+      setCurrentPrice(prev => prev + (Math.random() - 0.5) * 20);
+    }, 3000);
+
+    return () => clearInterval(priceInterval);
+  }, []);
+
+  // Simulate order book updates
+  useEffect(() => {
+    const orderBookInterval = setInterval(() => {
+      setOrderBook(prev => ({
+        asks: prev.asks.map(a => ({
+          ...a,
+          amount: Math.max(0.01, a.amount + (Math.random() - 0.5) * 0.2),
+          depth: Math.max(10, Math.min(95, a.depth + (Math.random() - 0.5) * 20)))
+        })),
+        bids: prev.bids.map(b => ({
+          ...b,
+          amount: Math.max(0.01, b.amount + (Math.random() - 0.5) * 0.2),
+          depth: Math.max(10, Math.min(95, b.depth + (Math.random() - 0.5) * 20)))
+        }))
+      }));
+    }, 500);
+
+    return () => clearInterval(orderBookInterval);
+  }, []);
+
+  const change24h = ((currentPrice - mockSymbolDetail.close) / mockSymbolDetail.close) * 100;
+  const change24hAmount = currentPrice - mockSymbolDetail.close;
+
+  return (
+    <div style={{
+      background: 'var(--bg-secondary)',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      {/* Status bar */}
+      <div style={{ height: 59, background: 'var(--bg-primary)', borderBottom: `1px solid var(--border)` }}/>
+
+      {/* Navigation bar */}
+      <NavBar
+        onBack={() => alert('Back to Market List')}
+        symbol={mockSymbolDetail.symbol}
+        isWatchlisted={isWatchlisted}
+        onToggleStar={() => setIsWatchlisted(!isWatchlisted)}
+      />
+
+      {/* Price header */}
+      <PriceHeader
+        symbol={mockSymbolDetail.symbol}
+        currentPrice={currentPrice}
+        change24h={change24h}
+        change24hAmount={change24hAmount}
+        open={mockSymbolDetail.open}
+        high={mockSymbolDetail.high}
+        low={mockSymbolDetail.low}
+        close={mockSymbolDetail.close}
+        exchange={mockSymbolDetail.exchange}
+      />
+
+      {/* Chart area */}
+      <div style={{
+        padding: '12px 16px',
+        background: 'var(--bg-primary)',
+        borderBottom: `1px solid var(--border)`
+      }}>
+        <CandlestickChart />
+      </div>
+
+      {/* Time period tabs */}
+      <TimePeriodTabs activeTab={activeTab} onTabChange={setActiveTab}/>
+
+      {/* Order book / Trades toggle */}
+      <div style={{
+        display: 'flex',
+        height: 36,
+        gap: 4,
+        padding: '8px 16px',
+        background: 'var(--bg-primary)',
+        borderBottom: `1px solid var(--border)`
+      }}>
+        {['orderbook', 'trades'].map((view, idx) => (
+          <button
+            key={view}
+            onClick={() => setShowView(view)}
+            style={{
+              flex: 1,
+              border: 'none',
+              borderRadius: 8,
+              background: showView === view ? 'var(--brand-blue)' : 'var(--bg-secondary)',
+              color: showView === view ? '#FFFFFF' : 'var(--text-secondary)',
+              fontSize: 12,
+              fontWeight: 600,
+              fontFamily: 'Inter',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {view === 'orderbook' ? '订单簿' : '成交'}
+          </button>
+        ))}
+      </div>
+
+      {/* Order book / Trades view */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {showView === 'orderbook' ? (
+          <OrderBookView orderBook={orderBook}/>
+        ) : (
+          <TradesView trades={mockTrades}/>
+        )}
+      </div>
+
+      {/* Action bar */}
+      <div style={{
+        display: 'flex',
+        height: 56,
+        gap: 0,
+        padding: 8,
+        background: 'var(--bg-primary)',
+        borderTop: `1px solid var(--border)`,
+        position: 'sticky',
+        bottom: 0,
+        zIndex: 10
+      }}>
+        {/* Buy button */}
+        <button style={{
+          flex: 1,
+          height: 44,
+          marginRight: 4,
+          border: 'none',
+          borderRadius: 8,
+          background: 'var(--success)',
+          color: '#FFFFFF',
+          fontSize: 14,
+          fontWeight: 600,
+          fontFamily: 'Inter',
+          cursor: 'pointer',
+          transition: 'opacity 0.15s'
+        }}
+        onMouseDown={e => (e.target.style.opacity = '0.9')}
+        onMouseUp={e => (e.target.style.opacity = '1')}
+        onClick={() => alert('Navigate to Buy Order page for BTC/USDT')}
+        >
+          买入
+        </button>
+
+        {/* Sell button */}
+        <button style={{
+          flex: 1,
+          height: 44,
+          marginLeft: 4,
+          border: 'none',
+          borderRadius: 8,
+          background: 'var(--danger)',
+          color: '#FFFFFF',
+          fontSize: 14,
+          fontWeight: 600,
+          fontFamily: 'Inter',
+          cursor: 'pointer',
+          transition: 'opacity 0.15s'
+        }}
+        onMouseDown={e => (e.target.style.opacity = '0.9')}
+        onMouseUp={e => (e.target.style.opacity = '1')}
+        onClick={() => alert('Navigate to Sell Order page for BTC/USDT')}
+        >
+          卖出
+        </button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<SymbolDetailPage/>, document.getElementById('root'));
+</script>
+</body>
+</html>

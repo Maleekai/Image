@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=390,initial-scale=1,maximum-scale=1"/>
+<title>ZR Securities — 行情列表</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --brand-blue: #1A73E8;
+  --success: #34A853;
+  --danger: #EA4335;
+  --neutral: #5F6368;
+  --bg-primary: #FFFFFF;
+  --bg-surface: #F8F9FA;
+  --text-primary: #212121;
+  --text-secondary: #5F6368;
+  --divider: #F0F0F0;
+  --hashkey: #2962FF;
+  --bullish: #00BFA5;
+  --osl: #FF6D00;
+  --vdx: #7C4DFF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-surface);
+  max-width: 390px;
+  margin: 0 auto;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ========= MOCK DATA ========= */
+const mockMarkets = [
+  {
+    id: 'btc',
+    symbol: 'BTC',
+    name: 'Bitcoin',
+    exchange: 'HashKey',
+    assetClass: 'crypto',
+    price: 67234.50,
+    change24h: 2.34,
+    volume: 245000000,
+    sparklineData: [65000, 65500, 66200, 66900, 67234]
+  },
+  {
+    id: 'eth',
+    symbol: 'ETH',
+    name: 'Ethereum',
+    exchange: 'HashKey',
+    assetClass: 'crypto',
+    price: 3456.80,
+    change24h: 1.52,
+    volume: 180000000,
+    sparklineData: [3400, 3420, 3440, 3456, 3456]
+  },
+  {
+    id: 'sol',
+    symbol: 'SOL',
+    name: 'Solana',
+    exchange: 'Bullish',
+    assetClass: 'crypto',
+    price: 142.35,
+    change24h: -1.23,
+    volume: 95000000,
+    sparklineData: [145, 144, 143, 142, 142]
+  },
+  {
+    id: 'xrp',
+    symbol: 'XRP',
+    name: 'Ripple',
+    exchange: 'VDX',
+    assetClass: 'crypto',
+    price: 2.45,
+    change24h: 3.12,
+    volume: 72000000,
+    sparklineData: [2.38, 2.40, 2.42, 2.44, 2.45]
+  },
+  {
+    id: 'aapl',
+    symbol: 'AAPL',
+    name: 'Apple Inc.',
+    exchange: 'OSL',
+    assetClass: 'stock',
+    price: 192.50,
+    change24h: 0.87,
+    volume: 45000000,
+    sparklineData: [190, 191, 191.5, 192, 192.5]
+  },
+  {
+    id: 'tsla',
+    symbol: 'TSLA',
+    name: 'Tesla Inc.',
+    exchange: 'VDX',
+    assetClass: 'stock',
+    price: 245.75,
+    change24h: -2.15,
+    volume: 38000000,
+    sparklineData: [252, 250, 248, 246, 245]
+  },
+  {
+    id: 'msft',
+    symbol: 'MSFT',
+    name: 'Microsoft',
+    exchange: 'HashKey',
+    assetClass: 'stock',
+    price: 420.30,
+    change24h: 1.20,
+    volume: 52000000,
+    sparklineData: [415, 417, 419, 420, 420.3]
+  },
+  {
+    id: 'eurusd',
+    symbol: 'EUR/USD',
+    name: 'Euro/US Dollar',
+    exchange: 'HashKey',
+    assetClass: 'forex',
+    price: 1.0892,
+    change24h: 0.42,
+    volume: 380000000,
+    sparklineData: [1.0850, 1.0865, 1.0880, 1.0890, 1.0892]
+  },
+  {
+    id: 'gbpusd',
+    symbol: 'GBP/USD',
+    name: 'British Pound/US Dollar',
+    exchange: 'Bullish',
+    assetClass: 'forex',
+    price: 1.2735,
+    change24h: -0.35,
+    volume: 290000000,
+    sparklineData: [1.2760, 1.2750, 1.2745, 1.2740, 1.2735]
+  },
+  {
+    id: 'gold',
+    symbol: 'GOLD',
+    name: 'Gold Futures',
+    exchange: 'OSL',
+    assetClass: 'commodity',
+    price: 2087.45,
+    change24h: 3.21,
+    volume: 125000000,
+    sparklineData: [2020, 2040, 2060, 2075, 2087]
+  },
+  {
+    id: 'crude',
+    symbol: 'CRUDE',
+    name: 'Crude Oil',
+    exchange: 'Bullish',
+    assetClass: 'commodity',
+    price: 82.35,
+    change24h: 1.85,
+    volume: 180000000,
+    sparklineData: [80.5, 80.8, 81.2, 81.8, 82.35]
+  },
+  {
+    id: 'usdjpy',
+    symbol: 'USD/JPY',
+    name: 'US Dollar/Japanese Yen',
+    exchange: 'VDX',
+    assetClass: 'forex',
+    price: 149.85,
+    change24h: 0.65,
+    volume: 210000000,
+    sparklineData: [148.90, 149.10, 149.35, 149.65, 149.85]
+  }
+];
+
+/* ========= COMPONENTS ========= */
+
+// Exchange Badge
+function ExchangeBadge({ exchange }) {
+  const map = {
+    HashKey: { bg: '#E8EEFF', color: '#2962FF' },
+    Bullish: { bg: '#E0F7F0', color: '#00BFA5' },
+    OSL: { bg: '#FFF3E0', color: '#FF6D00' },
+    VDX: { bg: '#EDE7F6', color: '#7C4DFF' },
+  };
+  const s = map[exchange] || map.HashKey;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', height: 20, padding: '0 8px', borderRadius: 4, background: s.bg, color: s.color, fontSize: 10, fontWeight: 500, fontFamily: 'Inter' }}>
+      {exchange}
+    </span>
+  );
+}
+
+// Sparkline Chart
+function Sparkline({ data = [], positive = true, width = 40, height = 24 }) {
+  if (!data || data.length === 0) return <svg width={width} height={height}/>;
+
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((d, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((d - min) / range) * (height * 0.8);
+    return `${x},${y}`;
+  }).join(' ');
+
+  const color = positive ? '#34A853' : '#EA4335';
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
+      <polyline points={points} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+// Market Row
+function MarketRow({ item, onTap }) {
+  const positive = item.change24h >= 0;
+  const priceStr = item.price > 1000 ? item.price.toLocaleString('en-US', { maximumFractionDigits: 2 }) : item.price.toFixed(4);
+
+  return (
+    <div
+      onClick={onTap}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        height: 64,
+        padding: '0 16px',
+        borderBottom: `1px solid var(--divider)`,
+        background: 'var(--bg-primary)',
+        cursor: 'pointer',
+        transition: 'background-color 0.2s',
+        gap: 12
+      }}
+      onMouseEnter={e => e.currentTarget.style.backgroundColor = '#F8F9FA'}
+      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
+    >
+      {/* Icon */}
+      <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--bg-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: 'var(--text-secondary)', flexShrink: 0 }}>
+        {item.symbol.charAt(0)}
+      </div>
+
+      {/* Name & Exchange */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{item.symbol}</span>
+          <ExchangeBadge exchange={item.exchange}/>
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+      </div>
+
+      {/* Price */}
+      <div style={{ fontSize: 14, fontFamily: 'JetBrains Mono', fontWeight: 600, color: 'var(--text-primary)', minWidth: 80, textAlign: 'right', flexShrink: 0 }}>
+        {item.price > 100 ? '$' : ''}{priceStr}
+      </div>
+
+      {/* Change Badge */}
+      <div style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 28,
+        width: 60,
+        borderRadius: 4,
+        background: positive ? 'rgba(52, 168, 83, 0.1)' : 'rgba(234, 67, 53, 0.1)',
+        color: positive ? '#34A853' : '#EA4335',
+        fontSize: 12,
+        fontFamily: 'JetBrains Mono',
+        fontWeight: 600,
+        flexShrink: 0
+      }}>
+        {positive ? '+' : ''}{item.change24h.toFixed(2)}%
+      </div>
+
+      {/* Sparkline */}
+      <div style={{ width: 40, height: 24, flexShrink: 0 }}>
+        <Sparkline data={item.sparklineData} positive={positive}/>
+      </div>
+    </div>
+  );
+}
+
+// Asset Class Switcher
+function AssetClassSwitcher({ active, onChange }) {
+  const items = ['加密', '股票', '外汇', '商品'];
+  return (
+    <div style={{ display: 'flex', height: 44, background: 'var(--bg-surface)', borderRadius: 8, padding: 6, gap: 6 }}>
+      {items.map((item, i) => (
+        <button
+          key={i}
+          onClick={() => onChange(i)}
+          style={{
+            flex: 1,
+            border: 'none',
+            borderRadius: 8,
+            fontSize: 14,
+            fontWeight: 600,
+            fontFamily: 'Inter',
+            background: i === active ? 'var(--brand-blue)' : 'transparent',
+            color: i === active ? '#FFFFFF' : 'var(--text-secondary)',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease-in-out'
+          }}
+        >
+          {item}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Category Tabs
+function CategoryTabs({ active, onChange }) {
+  const tabs = ['收藏', '热门', '涨幅', '跌幅', '成交量', '新币'];
+  const scrollRef = useRef(null);
+
+  return (
+    <div style={{ display: 'flex', height: 36, background: 'var(--bg-primary)', borderBottom: `1px solid var(--divider)`, overflowX: 'auto', overflowY: 'hidden', scrollBehavior: 'smooth' }} ref={scrollRef}>
+      {tabs.map((tab, i) => (
+        <button
+          key={i}
+          onClick={() => onChange(i)}
+          style={{
+            minWidth: 'max-content',
+            height: 36,
+            padding: '0 12px',
+            background: 'transparent',
+            border: 'none',
+            fontSize: 14,
+            fontWeight: 500,
+            fontFamily: 'Inter',
+            color: i === active ? 'var(--brand-blue)' : 'var(--text-secondary)',
+            cursor: 'pointer',
+            borderBottom: i === active ? `2px solid var(--brand-blue)` : 'none',
+            transition: 'color 0.3s'
+          }}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Sort Header
+function SortHeader({ sortBy, sortDir, onSort }) {
+  const getSortIndicator = (field) => {
+    if (sortBy !== field) return '';
+    return sortDir === 'asc' ? '↑' : '↓';
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', height: 44, padding: '0 16px', background: 'var(--bg-surface)', borderBottom: `1px solid var(--divider)`, gap: 12 }}>
+      <button
+        onClick={() => onSort('name')}
+        style={{ flex: 1, textAlign: 'left', background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'Inter' }}
+      >
+        名称 {getSortIndicator('name')}
+      </button>
+      <button
+        onClick={() => onSort('price')}
+        style={{ width: 100, textAlign: 'right', background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'Inter' }}
+      >
+        价格 {getSortIndicator('price')}
+      </button>
+      <button
+        onClick={() => onSort('change24h')}
+        style={{ width: 80, textAlign: 'right', background: 'none', border: 'none', fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', fontFamily: 'Inter' }}
+      >
+        24h涨跌 {getSortIndicator('change24h')}
+      </button>
+    </div>
+  );
+}
+
+// Bottom Tab Bar
+function TabBar({ activeTab = 0 }) {
+  const items = [
+    { label: '行情', icon: '📊' },
+    { label: '收藏', icon: '⭐' },
+    { label: '交易', icon: '💱' },
+    { label: '订单', icon: '📋' },
+    { label: '账户', icon: '👤' },
+  ];
+  return (
+    <div style={{ display: 'flex', height: 83, background: 'var(--bg-primary)', borderTop: `1px solid var(--divider)`, paddingBottom: 34 }}>
+      {items.map((item, i) => (
+        <div key={i} style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 2,
+          color: i === activeTab ? 'var(--brand-blue)' : '#9AA0A6',
+          cursor: 'pointer',
+          transition: 'color 0.3s'
+        }}>
+          <span style={{ fontSize: 24 }}>{item.icon}</span>
+          <span style={{ fontSize: 10, fontWeight: 500 }}>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ========= MAIN APP ========= */
+function MarketListApp() {
+  const [assetClass, setAssetClass] = useState(0);
+  const [categoryTab, setCategoryTab] = useState(0);
+  const [sortBy, setSortBy] = useState('');
+  const [sortDir, setSortDir] = useState('asc');
+  const [pullToRefresh, setPullToRefresh] = useState(false);
+  const contentRef = useRef(null);
+  const touchStartRef = useRef(0);
+
+  const assetClassMap = ['crypto', 'stock', 'forex', 'commodity'];
+  const selectedAssetClass = assetClassMap[assetClass];
+
+  // Filter by asset class
+  let filtered = mockMarkets.filter(m => m.assetClass === selectedAssetClass);
+
+  // Apply category filter/sort
+  switch(categoryTab) {
+    case 0: // 收藏 (Favorites) - mock: just show all
+      break;
+    case 1: // 热门 (Hot) - by volume
+      filtered = filtered.sort((a, b) => b.volume - a.volume);
+      break;
+    case 2: // 涨幅 (Gainers)
+      filtered = filtered.sort((a, b) => b.change24h - a.change24h);
+      break;
+    case 3: // 跌幅 (Losers)
+      filtered = filtered.sort((a, b) => a.change24h - b.change24h);
+      break;
+    case 4: // 成交量 (Volume)
+      filtered = filtered.sort((a, b) => b.volume - a.volume);
+      break;
+    case 5: // 新币 (New) - mock: reverse order
+      filtered = filtered.reverse();
+      break;
+  }
+
+  // Apply manual sort
+  if (sortBy) {
+    const mult = sortDir === 'asc' ? 1 : -1;
+    if (sortBy === 'name') {
+      filtered = filtered.sort((a, b) => mult * a.symbol.localeCompare(b.symbol));
+    } else if (sortBy === 'price') {
+      filtered = filtered.sort((a, b) => mult * (a.price - b.price));
+    } else if (sortBy === 'change24h') {
+      filtered = filtered.sort((a, b) => mult * (a.change24h - b.change24h));
+    }
+  }
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortDir('asc');
+    }
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartRef.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!contentRef.current || contentRef.current.scrollTop > 0) return;
+    const diff = e.touches[0].clientY - touchStartRef.current;
+    if (diff > 50) {
+      setPullToRefresh(true);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullToRefresh) {
+      setTimeout(() => setPullToRefresh(false), 1500);
+    }
+  };
+
+  return (
+    <div style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-surface)' }}>
+      {/* Status Bar (59px) */}
+      <div style={{ height: 59, background: 'var(--brand-blue)', color: '#FFFFFF', display: 'flex', alignItems: 'flex-end', paddingBottom: 8, paddingLeft: 16, paddingRight: 16 }}>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>ZR Securities</div>
+      </div>
+
+      {/* Header with Asset Class Switcher */}
+      <div style={{ background: 'var(--bg-primary)', padding: '12px 16px 12px 16px', borderBottom: `1px solid var(--divider)` }}>
+        <AssetClassSwitcher active={assetClass} onChange={setAssetClass}/>
+      </div>
+
+      {/* Category Tabs (Sticky) */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+        <CategoryTabs active={categoryTab} onChange={setCategoryTab}/>
+      </div>
+
+      {/* Sort Header (Sticky) */}
+      <div style={{ position: 'sticky', top: 36, zIndex: 10 }}>
+        <SortHeader sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
+      </div>
+
+      {/* Pull-to-Refresh Hint */}
+      {pullToRefresh && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 0', background: 'var(--bg-surface)', fontSize: 12, color: 'var(--text-secondary)', animation: 'fadeOut 0.3s ease-out 1.2s forwards' }}>
+          ✓ 已刷新
+        </div>
+      )}
+
+      {/* Market List */}
+      <div
+        ref={contentRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          background: 'var(--bg-primary)',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        {filtered.length === 0 ? (
+          <div style={{ padding: '40px 16px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: 14 }}>暂无数据</div>
+          </div>
+        ) : (
+          filtered.map(item => (
+            <MarketRow
+              key={item.id}
+              item={item}
+              onTap={() => console.log('Navigate to', item.symbol)}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Bottom Tab Bar (83px total, 34px safe area bottom) */}
+      <TabBar activeTab={0}/>
+
+      <style>{`
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D0D0D0; border-radius: 2px; }
+      `}</style>
+    </div>
+  );
+}
+
+ReactDOM.render(<MarketListApp/>, document.getElementById('root'));
+</script>
+</body>
+</html>
