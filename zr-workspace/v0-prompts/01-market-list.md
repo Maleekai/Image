@@ -104,6 +104,21 @@ ZR Securities is a Hong Kong SFC-licensed multi-market broker. Users browse and 
 - **Behavior:** Tap to navigate to Symbol Detail page
 - **Competitive ref:** Binance Markets list每行嵌入迷你K线; OKX纯数字
 
+### Market Session Status (IO-005 — ZR Innovation)
+- **Position:** Below Asset Class Switcher, only visible when 股票 or 外汇 tab is active
+- **Dimensions:** Full width, 28px height, 16px padding
+- **Background:** #F8F9FA
+- **Layout:** Horizontal, items separated by " | "
+- **Per market:**
+  - Status dot: 6px circle — green (#34A853) = Open, gray (#BDBDBD) = Closed, amber (#FBBC04) = Pre/Post
+  - Market: Inter 11px — "NYSE", "HKEX", "LSE", "Forex"
+  - Status: Inter 11px — "Open", "Closed", "Pre-Market", "24/7"
+- **Mock:**
+  - For 股票 tab: "NYSE ● Open | HKEX ● Closed | LSE ● Closed"
+  - For 外汇 tab: "Forex ● Open (Mon-Fri 24h)"
+- **Behavior:** Tapping a market name shows operating hours tooltip
+- **Rationale:** Prevents user confusion when stock/forex markets are closed — essential for multi-asset app
+
 ### Heatmap Toggle (IO-009 — ZR Innovation)
 - **Position:** In Sort Header, right side
 - **Type:** Icon toggle button (24px)

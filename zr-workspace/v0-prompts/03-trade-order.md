@@ -194,6 +194,27 @@ The Trade Order page enables users to execute buy/sell orders with configurable 
   - Tap "Wait" to close modal, stay on page
   - Tap "Proceed" to show SFC risk disclaimer modal
 
+### Frequency Warning Banner (Antifragile Principle 1)
+- **Trigger:** User has made 3+ trades today
+- **Position:** Below Order Summary Card, above Place Order Button
+- **Dimensions:** Full width, 44px, 8px radius
+- **Background:** #FFF8E1 (light amber)
+- **Content:**
+  - ⚠️ icon (16px) + "You've made {N} trades today. Frequent trading may increase losses." (Inter 11px, #5F6368)
+  - "Your 30D win rate: {X}%" (Inter 11px bold, green if >50%, red if <50%)
+- **Behavior:** Informational only (not blocking), dismiss with X button. Reappears on next order.
+- **Note:** Implements Antifragile Principle 1 — high-risk operation awareness. This nudge does NOT exist in any competitor app.
+
+### Adding-to-Loss Warning (Antifragile Principle 1)
+- **Trigger:** User is buying MORE of an asset they currently hold at >10% unrealized loss
+- **Position:** Same as Frequency Warning (replaces it if both triggers active)
+- **Dimensions:** Full width, 56px, 8px radius
+- **Background:** #FFEBEE (light red)
+- **Content:**
+  - ⚠️ icon (16px) + "You're adding to a losing position." (Inter 12px bold, #EA4335)
+  - "Current P&L on {symbol}: -12.5% | Historical: 68% of similar add-ons result in further losses" (Inter 10px, #757575)
+- **Behavior:** Informational only, dismiss with X.
+
 ### SFC Risk Disclaimer Modal
 - **Dimensions:** Full screen overlay with 320px centered card
 - **Header:** "Risk Acknowledgement" (Inter 14px bold)
