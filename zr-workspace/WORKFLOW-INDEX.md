@@ -14,7 +14,7 @@
 | Phase 2: 设计决策 | ✅ 完成 | 设计决策总纲 + 设计系统规范 + 9份v0 Prompt (00-08, 共101KB) |
 | Phase 3: 原型生成 | ✅ 完成 | 9份React交互原型 (00-08, 共182KB, prototypes/*.html) |
 | Phase 4: Figma精调 | ✅ 完成 | 3份Figma参考文档 (Tokens JSON + 组件库 + 逐屏规格, figma-handoff/) |
-| Phase 5: 文档更新 | 🔲 待开始 | → PRD v2.0 + FRD v2.0 |
+| Phase 5: 文档更新 | ✅ 完成 | PRD v2.0 (22KB) + FRD v2.0 (28KB), docs/*.docx |
 
 ---
 
@@ -83,6 +83,9 @@ Image/ (GitHub repo root)
     │   ├── 06-deposit.md                  ← ✅ 充值页面
     │   ├── 07-withdraw.md                 ← ✅ 提币页面(含安全验证)
     │   └── 08-onboarding.md               ← ✅ 开户流程(5屏)
+    ├── docs/                        ← Phase 5 输出：产品文档 (已完成 ✅)
+    │   ├── ZR-PRD-v2.0.docx            ← ✅ 产品需求文档 (12章, 22KB)
+    │   └── ZR-FRD-v2.0.docx            ← ✅ 功能需求文档 (13章, 28KB)
     ├── figma-handoff/               ← Phase 4 输出：Figma参考文档 (已完成 ✅)
     │   ├── figma-design-tokens.json     ← ✅ Design Tokens (可导入Figma Variables)
     │   ├── figma-component-library.md   ← ✅ 组件库参考 (命名/变体/尺寸/状态)
@@ -247,6 +250,27 @@ Phase 1 OKX全量分析已完成 (`okx-complete-analysis.md`)
 - 组件: 25+ 组件变体 (含10个Figma Component Property定义)
 - 页面: 8个核心页面的完整Frame树 (含多步流程展开为独立Frame)
 - 建模建议: Figma Auto Layout / Variables / Component Properties 最佳实践
+
+---
+
+## Phase 5 执行指南: 文档更新 ✅ 已完成
+
+### 完成状态
+
+生成2份专业Word文档 (.docx)，整合Phase 0-4全部产出：
+
+| 文档 | 章节数 | 内容 | 尺寸 |
+|------|--------|------|------|
+| ZR-PRD-v2.0.docx | 12章 | 执行摘要、问题陈述、目标/非目标、用户故事、需求(P0/P1/P2)、设计原则、成功指标、竞品定位、技术约束、时间线、开放问题、附录 | 22KB |
+| ZR-FRD-v2.0.docx | 13章 | 8个功能模块详细规格(开户/行情/详情/交易/委托/资产/充值/提币)、设计系统参考、数据模型、API契约、边界/错误处理 | 28KB |
+
+**文档特性**:
+- 封面页 + 目录 + 页眉/页脚/页码
+- ZR品牌色 (#1A73E8) 标题样式
+- 50+ 详细表格，每个功能点有明确的验收标准
+- 12项P0需求 + 6项P1需求 + 6项P2规划
+- 3个核心数据模型 (User/Order/Asset) + 16个API端点
+- 完整边界场景覆盖 (网络/交易/充提/空态)
 
 ---
 
