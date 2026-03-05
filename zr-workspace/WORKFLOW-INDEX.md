@@ -1,6 +1,6 @@
 # ZR Securities — 竞品分析到产品原型 全链路工作流索引
 
-> **Version**: v1.0 | **Date**: 2026-03-04 | **Owner**: 余博 (Maleekai) · CPO
+> **Version**: v2.0 | **Date**: 2026-03-05 | **Owner**: 余博 (Maleekai) · CPO
 
 ---
 
@@ -15,6 +15,7 @@
 | Phase 3: 原型生成 | ✅ 完成 | 9份React交互原型 (00-08, 共182KB, prototypes/*.html) |
 | Phase 4: Figma精调 | ✅ 完成 | 3份Figma参考文档 (Tokens JSON + 组件库 + 逐屏规格, figma-handoff/) |
 | Phase 5: 文档更新 | ✅ 完成 | PRD v2.0 (22KB) + FRD v2.0 (28KB), docs/*.docx |
+| **Phase 6: Binance竞品分析** | **✅ 完成** | **5模块分析 + 差异报告 + 设计决策v2.0, binance-analysis/** |
 
 ---
 
@@ -90,6 +91,16 @@ Image/ (GitHub repo root)
     │   ├── figma-design-tokens.json     ← ✅ Design Tokens (可导入Figma Variables)
     │   ├── figma-component-library.md   ← ✅ 组件库参考 (命名/变体/尺寸/状态)
     │   └── figma-screen-specs.md        ← ✅ 逐屏布局规格 (Frame层级/Auto Layout)
+    ├── binance-analysis/            ← Phase 6 输出：Binance竞品分析 (已完成 ✅)
+    │   ├── module-01-onboarding.md      ← ✅ 开户/登录模块 (18KB)
+    │   ├── module-02-markets.md         ← ✅ 行情/发现模块 (8KB)
+    │   ├── module-03-trading.md         ← ✅ 交易/下单模块 (24KB)
+    │   ├── module-04-assets.md          ← ✅ 资产/充提模块 (8KB)
+    │   ├── module-05-innovation.md      ← ✅ 创新功能模块 (9KB)
+    │   ├── binance-vs-okx-differential.md ← ✅ Binance vs OKX差异分析总报告
+    │   ├── UI-COMPARISON.md             ← ✅ UI详细对比 (12KB)
+    │   ├── IMPLEMENTATION-GUIDE.md      ← ✅ 实施指南 (8KB)
+    │   └── README.md                    ← ✅ 分析索引
     └── prototypes/                  ← Phase 3 输出：React交互原型 (已完成 ✅)
         ├── 00-design-system.html          ← ✅ 设计系统组件展示 (20KB)
         ├── 01-market-list.html            ← ✅ 行情列表页 (18KB)
@@ -271,6 +282,34 @@ Phase 1 OKX全量分析已完成 (`okx-complete-analysis.md`)
 - 12项P0需求 + 6项P1需求 + 6项P2规划
 - 3个核心数据模型 (User/Order/Asset) + 16个API端点
 - 完整边界场景覆盖 (网络/交易/充提/空态)
+
+---
+
+## Phase 6 执行指南: Binance竞品分析 ✅ 已完成
+
+### 完成状态
+
+对Binance iOS 248个Flow进行按模块抽样分析(42 key flows, ~310 screenshots)，与OKX基准对比：
+
+| 模块 | Flows | 截图数 | 分析文件 |
+|------|-------|--------|---------|
+| ① 开户/登录 | 001, 002, 245, 246 | 35 | module-01-onboarding.md (18KB) |
+| ② 行情/发现 | 006, 085-087, 025, 103, 023, 027, 056, 201 | 80 | module-02-markets.md (8KB) |
+| ③ 交易/下单 | 104, 105, 108, 110, 111, 140, 116, 127, 212 | 75 | module-03-trading.md (24KB) |
+| ④ 资产/充提 | 160-162, 164, 168, 013, 165, 176, 236 | 55 | module-04-assets.md (8KB) |
+| ⑤ 创新功能 | 068-069, 156, 100, 203, 102, 180, 214 | 65 | module-05-innovation.md (9KB) |
+
+**核心产出**:
+- **5份模块分析报告**: 每模块含Flow详细分析、设计亮点、设计不足、ZR借鉴点、ZR应避免设计
+- **Binance vs OKX差异报告**: 5维度对比矩阵(战略/行情/交易/资产/创新)、竞争力评分
+- **设计决策v2.0更新**: 新增DA-013~016(Binance借鉴), IO-009~010(新创新点), IO-002/008升级
+- **UI对比文档 + 实施指南**: 10个关键UI对比 + 3阶段开发计划
+
+**关键发现**:
+- Binance战略: 从交易所→超级App(社交Square+AI+支付+Stocks)
+- ZR差异化确认: 多资产原生、交易所透明、合规即产品、做减法不做加法
+- 新增4个Direct Adoption: 迷你K线、行内快捷按钮、提现Bottom Sheet、定投模拟器
+- 新增2个Innovation: 多资产热力图(IO-009)、交易者画像(IO-010)
 
 ---
 
