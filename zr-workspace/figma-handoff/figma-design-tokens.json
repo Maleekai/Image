@@ -1,0 +1,136 @@
+{
+  "$schema": "https://tr.designtokens.org/format/",
+  "meta": {
+    "name": "ZR Securities Design Tokens",
+    "version": "1.0.0",
+    "date": "2026-03-05",
+    "description": "Figma Variables-ready token set for ZR Securities trading app"
+  },
+
+  "color": {
+    "brand": {
+      "blue":       { "$value": "#1A73E8", "$type": "color", "$description": "Primary CTA, active tabs, links, focused inputs" },
+      "blue-hover": { "$value": "#4A90D9", "$type": "color", "$description": "Hover/pressed state" },
+      "blue-dark":  { "$value": "#1557B0", "$type": "color", "$description": "Active/selected state" },
+      "blue-bg":    { "$value": "#E8F0FE", "$type": "color", "$description": "Light blue backgrounds, selected row" }
+    },
+
+    "semantic": {
+      "success":  { "$value": "#00C853", "$type": "color", "$description": "Buy, positive change, deposits" },
+      "error":    { "$value": "#FF1744", "$type": "color", "$description": "Sell, negative change, errors" },
+      "warning":  { "$value": "#FFB300", "$type": "color", "$description": "Amber warnings, pending status" },
+      "info":     { "$value": "#29B6F6", "$type": "color", "$description": "Info badges, QR frames, help" }
+    },
+
+    "neutral": {
+      "light": {
+        "bg-primary":    { "$value": "#FFFFFF", "$type": "color" },
+        "bg-secondary":  { "$value": "#F5F5F5", "$type": "color" },
+        "bg-tertiary":   { "$value": "#EEEEEE", "$type": "color" },
+        "text-primary":  { "$value": "#212121", "$type": "color" },
+        "text-secondary":{ "$value": "#757575", "$type": "color" },
+        "text-tertiary": { "$value": "#BDBDBD", "$type": "color" },
+        "border":        { "$value": "#E0E0E0", "$type": "color" },
+        "divider":       { "$value": "#F0F0F0", "$type": "color" }
+      },
+      "dark": {
+        "bg-primary":    { "$value": "#121212", "$type": "color" },
+        "bg-secondary":  { "$value": "#1E1E1E", "$type": "color" },
+        "bg-tertiary":   { "$value": "#2C2C2C", "$type": "color" },
+        "text-primary":  { "$value": "#FFFFFF", "$type": "color" },
+        "text-secondary":{ "$value": "#B0B0B0", "$type": "color" },
+        "text-tertiary": { "$value": "#666666", "$type": "color" },
+        "border":        { "$value": "#333333", "$type": "color" },
+        "divider":       { "$value": "#222222", "$type": "color" }
+      }
+    },
+
+    "exchange": {
+      "hashkey":      { "$value": "#2962FF", "$type": "color" },
+      "hashkey-bg":   { "$value": "#E8EEFF", "$type": "color" },
+      "bullish":      { "$value": "#00BFA5", "$type": "color" },
+      "bullish-bg":   { "$value": "#E0F7F0", "$type": "color" },
+      "osl":          { "$value": "#FF6D00", "$type": "color" },
+      "osl-bg":       { "$value": "#FFF3E0", "$type": "color" },
+      "vdx":          { "$value": "#7C4DFF", "$type": "color" },
+      "vdx-bg":       { "$value": "#EDE7F6", "$type": "color" }
+    },
+
+    "asset-class": {
+      "crypto":      { "$value": "#FF9500", "$type": "color" },
+      "stocks":      { "$value": "#1A73E8", "$type": "color" },
+      "forex":       { "$value": "#00BFA5", "$type": "color" },
+      "commodities": { "$value": "#FFB300", "$type": "color" }
+    },
+
+    "status": {
+      "completed-bg":   { "$value": "#E8F5E9", "$type": "color" },
+      "completed-text": { "$value": "#2E7D32", "$type": "color" },
+      "pending-bg":     { "$value": "#FFF8E1", "$type": "color" },
+      "pending-text":   { "$value": "#F57F17", "$type": "color" },
+      "failed-bg":      { "$value": "#FFEBEE", "$type": "color" },
+      "failed-text":    { "$value": "#C62828", "$type": "color" }
+    }
+  },
+
+  "spacing": {
+    "xs":  { "$value": "4px",  "$type": "dimension", "$description": "Tight spacing, icon-text gaps" },
+    "sm":  { "$value": "8px",  "$type": "dimension", "$description": "Component internal padding" },
+    "md":  { "$value": "12px", "$type": "dimension", "$description": "Input padding, small gaps" },
+    "lg":  { "$value": "16px", "$type": "dimension", "$description": "Standard padding, content margins" },
+    "xl":  { "$value": "24px", "$type": "dimension", "$description": "Section gaps, modal padding" },
+    "2xl": { "$value": "32px", "$type": "dimension", "$description": "Large section separators" }
+  },
+
+  "borderRadius": {
+    "sm":   { "$value": "8px",  "$type": "dimension", "$description": "Buttons, inputs, small cards" },
+    "md":   { "$value": "12px", "$type": "dimension", "$description": "Cards, product tiles" },
+    "lg":   { "$value": "16px", "$type": "dimension", "$description": "Modals, bottom sheets (top)" },
+    "pill": { "$value": "26px", "$type": "dimension", "$description": "Primary CTA, badges" },
+    "full": { "$value": "9999px","$type": "dimension", "$description": "Avatars, status dots" }
+  },
+
+  "shadow": {
+    "elevation-1": { "$value": "0px 1px 3px rgba(0,0,0,0.08)",  "$type": "shadow", "$description": "Floating headers" },
+    "elevation-2": { "$value": "0px 4px 12px rgba(0,0,0,0.12)", "$type": "shadow", "$description": "Cards, dropdowns" },
+    "elevation-3": { "$value": "0px 8px 24px rgba(0,0,0,0.16)", "$type": "shadow", "$description": "Modals, sheets" }
+  },
+
+  "typography": {
+    "display":  { "fontSize": "28px", "fontWeight": "700", "lineHeight": "34px", "fontFamily": "SF Pro Display / Inter" },
+    "h1":       { "fontSize": "24px", "fontWeight": "700", "lineHeight": "30px", "fontFamily": "SF Pro Display / Inter" },
+    "h2":       { "fontSize": "20px", "fontWeight": "600", "lineHeight": "26px", "fontFamily": "SF Pro Text / Inter" },
+    "h3":       { "fontSize": "17px", "fontWeight": "600", "lineHeight": "22px", "fontFamily": "SF Pro Text / Inter" },
+    "body":     { "fontSize": "15px", "fontWeight": "400", "lineHeight": "22px", "fontFamily": "SF Pro Text / Inter" },
+    "caption":  { "fontSize": "13px", "fontWeight": "400", "lineHeight": "18px", "fontFamily": "SF Pro Text / Inter" },
+    "overline": { "fontSize": "11px", "fontWeight": "500", "lineHeight": "16px", "fontFamily": "SF Pro Text / Inter" },
+    "mono-lg":  { "fontSize": "28px", "fontWeight": "500", "lineHeight": "34px", "fontFamily": "SF Mono / JetBrains Mono" },
+    "mono-md":  { "fontSize": "15px", "fontWeight": "400", "lineHeight": "20px", "fontFamily": "SF Mono / JetBrains Mono" },
+    "mono-sm":  { "fontSize": "13px", "fontWeight": "400", "lineHeight": "18px", "fontFamily": "SF Mono / JetBrains Mono" }
+  },
+
+  "layout": {
+    "status-bar":       { "$value": "59px",  "$type": "dimension", "$description": "Dynamic Island safe area" },
+    "nav-bar":          { "$value": "44px",  "$type": "dimension", "$description": "Top navigation bar" },
+    "tab-bar":          { "$value": "83px",  "$type": "dimension", "$description": "Bottom tab (49+34 safe)" },
+    "content-padding":  { "$value": "16px",  "$type": "dimension", "$description": "Horizontal margins" },
+    "row-height-sm":    { "$value": "44px",  "$type": "dimension", "$description": "Compact list rows" },
+    "row-height-md":    { "$value": "56px",  "$type": "dimension", "$description": "Standard list rows" },
+    "row-height-lg":    { "$value": "64px",  "$type": "dimension", "$description": "Market/asset rows" },
+    "btn-height-primary":   { "$value": "52px", "$type": "dimension" },
+    "btn-height-secondary": { "$value": "36px", "$type": "dimension" },
+    "input-height":     { "$value": "48px",  "$type": "dimension" },
+    "icon-sm":          { "$value": "20px",  "$type": "dimension" },
+    "icon-md":          { "$value": "24px",  "$type": "dimension" },
+    "icon-lg":          { "$value": "32px",  "$type": "dimension" },
+    "touch-target":     { "$value": "44px",  "$type": "dimension", "$description": "Min tap area (Apple HIG)" },
+    "viewport-width":   { "$value": "390px", "$type": "dimension", "$description": "iPhone 14 primary" },
+    "viewport-height":  { "$value": "844px", "$type": "dimension", "$description": "iPhone 14 primary" }
+  },
+
+  "animation": {
+    "fast":   { "$value": "150ms", "$type": "duration", "easing": "ease-out",    "$description": "Button press" },
+    "normal": { "$value": "300ms", "$type": "duration", "easing": "ease-in-out", "$description": "Tab switch" },
+    "slow":   { "$value": "400ms", "$type": "duration", "easing": "ease-in-out", "$description": "Page transition" }
+  }
+}

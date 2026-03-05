@@ -13,7 +13,7 @@
 | Phase 1.5: 深度像素分析 | ✅ 完成 | 8份design-spec文档 (共174KB), 9份v0 prompt参考文档 |
 | Phase 2: 设计决策 | ✅ 完成 | 设计决策总纲 + 设计系统规范 + 9份v0 Prompt (00-08, 共101KB) |
 | Phase 3: 原型生成 | ✅ 完成 | 9份React交互原型 (00-08, 共182KB, prototypes/*.html) |
-| Phase 4: Figma精调 | 🔲 待开始 | → Figma 高保真设计 |
+| Phase 4: Figma精调 | ✅ 完成 | 3份Figma参考文档 (Tokens JSON + 组件库 + 逐屏规格, figma-handoff/) |
 | Phase 5: 文档更新 | 🔲 待开始 | → PRD v2.0 + FRD v2.0 |
 
 ---
@@ -83,6 +83,10 @@ Image/ (GitHub repo root)
     │   ├── 06-deposit.md                  ← ✅ 充值页面
     │   ├── 07-withdraw.md                 ← ✅ 提币页面(含安全验证)
     │   └── 08-onboarding.md               ← ✅ 开户流程(5屏)
+    ├── figma-handoff/               ← Phase 4 输出：Figma参考文档 (已完成 ✅)
+    │   ├── figma-design-tokens.json     ← ✅ Design Tokens (可导入Figma Variables)
+    │   ├── figma-component-library.md   ← ✅ 组件库参考 (命名/变体/尺寸/状态)
+    │   └── figma-screen-specs.md        ← ✅ 逐屏布局规格 (Frame层级/Auto Layout)
     └── prototypes/                  ← Phase 3 输出：React交互原型 (已完成 ✅)
         ├── 00-design-system.html          ← ✅ 设计系统组件展示 (20KB)
         ├── 01-market-list.html            ← ✅ 行情列表页 (18KB)
@@ -223,6 +227,26 @@ Phase 1 OKX全量分析已完成 (`okx-complete-analysis.md`)
 - 反脆弱交互: 冷静期倒计时Modal, 安全验证多因子
 - SFC合规: 风险披露, KYC流程, 风险评估
 - 实时模拟: 价格变动, 订单成交, WebSocket仿真
+
+---
+
+## Phase 4 执行指南: Figma参考文档 ✅ 已完成
+
+### 完成状态
+
+生成3份结构化参考文档，供在Figma中手动搭建高保真设计：
+
+| 文件 | 内容 | 用途 |
+|------|------|------|
+| `figma-design-tokens.json` | 完整token体系 (色彩/间距/圆角/阴影/排版/布局/动画) | 导入Figma Variables，建立设计变量系统 |
+| `figma-component-library.md` | 10大类组件规格 (Button/Input/Nav/Badge/Card/Row/Switcher/Modal/Progress/Misc) | 在Figma中搭建Component Library with Variants |
+| `figma-screen-specs.md` | 8个页面的Frame层级结构 + Auto Layout配置 + 组件引用 | 逐屏建模参考，含20+个Figma Frame |
+
+**覆盖范围**:
+- 色彩: 50+ tokens (品牌/语义/中性/交易所/资产类别/状态, 含Light+Dark模式)
+- 组件: 25+ 组件变体 (含10个Figma Component Property定义)
+- 页面: 8个核心页面的完整Frame树 (含多步流程展开为独立Frame)
+- 建模建议: Figma Auto Layout / Variables / Component Properties 最佳实践
 
 ---
 
