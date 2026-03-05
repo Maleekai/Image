@@ -121,17 +121,42 @@ The Trade Order page enables users to execute buy/sell orders with configurable 
   - Updates amount input and order summary
   - Disabled if balance unknown
 
+### Multi-Exchange Price Comparison (IO-003 — ZR Innovation, neither Binance nor OKX has this)
+- **Position:** Between Quick Percentage Buttons and Order Summary Card
+- **Dimensions:** 64px height, full width, 12px padding
+- **Background:** #F0F4FF (light blue tint), border-radius 8px, border 1px #D6E4FF
+- **Title:** "Best Price Across Exchanges" (Inter 11px, #5F6368)
+- **Layout (horizontal, 4 columns, equal width):**
+  - Each column:
+    - Exchange icon: 16px circle (exchange brand color)
+    - Exchange name: Inter 10px bold (e.g. "HashKey")
+    - Price: JetBrains Mono 12px (e.g. "$67,234")
+  - **Best price column:** highlighted with green border-bottom 2px #34A853
+  - If an exchange is in maintenance: gray out, show "Offline" label
+- **Behavior:**
+  - Auto-selects best price exchange
+  - User can manually tap to override exchange selection
+  - Updates in real-time via WebSocket
+- **Mock data:**
+  - HashKey: $67,234 (best) ✓
+  - Bullish: $67,228
+  - OSL: $67,240
+  - VDX: $67,236
+- **This is ZR's killer differentiator — no competitor shows multi-exchange pricing in the order flow**
+
 ### Order Summary Card
-- **Dimensions:** 120px height, full width, 16px padding
+- **Dimensions:** 140px height (expanded), full width, 16px padding
 - **Background:** #F8F9FA, border radius 8px
-- **Layout (3 rows):**
-  - Row 1: "Estimated Total" (Inter 12px) | Value (JetBrains Mono 14px bold, #1A73E8)
-  - Row 2: "Fee" (Inter 12px) | Value (JetBrains Mono 12px, #5F6368)
-  - Row 3: "Exchange" (Inter 12px) | Badge (hashkey/bullish/osl/vdx, 20px height)
-- **Gap:** 12px between rows
+- **Layout (4 rows):**
+  - Row 1: "Selected Exchange" (Inter 12px) | Badge with exchange name + color (20px height)
+  - Row 2: "Estimated Total" (Inter 12px) | Value (JetBrains Mono 14px bold, #1A73E8)
+  - Row 3: "Fee" (Inter 12px) | Value (JetBrains Mono 12px, #5F6368)
+  - Row 4: "You Save" (Inter 12px, #34A853) | "vs worst: $12.00" (JetBrains Mono 12px, #34A853)
+- **Gap:** 10px between rows
 - **Calculation:**
   - Estimated Total = Price × Amount (for Limit) or spot price × Amount (for Market)
-  - Fee = Estimated Total × 0.001 (0.1% taker fee)
+  - Fee = Estimated Total × exchange fee rate
+  - Savings = worst exchange price - best price, multiplied by amount
   - Final Total = Estimated Total + Fee
 
 ### Place Order Button

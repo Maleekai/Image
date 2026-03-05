@@ -55,17 +55,39 @@ The Assets page displays the user's portfolio across multiple exchanges and asse
 - Inactive: #F0F0F0 background, #666 text
 - Smooth scroll on mobile
 
-### Asset List
-- Per row: 64px height, 16px padding, 8px gaps
+### Asset List (DA-014 — enhanced with inline action buttons from Binance)
+- Per row: 76px height (expanded from 64px), 16px padding, 8px gaps
 - Structure:
-  - Asset icon: 36px × 36px, rounded 4px
-  - Name column: 40px min-width, name (14px bold) + secondary info (12px gray)
-  - Balance column: 80px, balance (14px) + change % (12px green/red)
-  - Value column: 100px, "HK$ X,XXX.XX" (14px bold)
-  - Exchange badge: 8px pill, #E8E8E8 background, 10px text
-  - Right: chevron 16px (tap for detail)
+  - Asset icon: 36px × 36px, rounded 8px
+  - Name column: flex, name (14px bold) + symbol (12px gray)
+  - Data column: right-aligned
+    - Holdings: JetBrains Mono 14px bold (e.g. "0.5000 BTC")
+    - Value: 12px gray (e.g. "≈ HK$ 250,000")
+    - Today's PNL: 12px green/red (e.g. "+HK$ 1,234 (+0.5%)")
+  - **Inline Action Buttons** (DA-014, from Binance Assets):
+    - 2 pill buttons: [Earn] [Trade], 28px height, 8px border-radius
+    - Earn: border 1px #1A73E8, text #1A73E8, bg transparent
+    - Trade: bg #1A73E8, text white
+    - Font: Inter 11px medium
+    - 6px gap between buttons
+    - **This eliminates the need to tap into detail → then find action — direct from list**
+  - Exchange badge: bottom-left of icon, 12px circle, exchange brand color
 - Row divider: 1px #F0F0F0
 - Hover state: background #FAFAFA
+- **Competitive ref:** Binance每个币种行内带Earn/Trade; OKX需点进详情
+
+### Withdraw Method Bottom Sheet (DA-015 — from Binance)
+- **Trigger:** Tap "Withdraw" in Quick Actions
+- **Type:** Bottom Sheet modal, 16px top border-radius, drag handle
+- **Height:** Auto (4 options ≈ 360px)
+- **Title:** "Select Withdraw Method" (Inter 16px bold, center)
+- **Options (4 cards, vertical stack, 12px gap):**
+  1. **Send to ZR User** — icon: person arrow, title: "Send to ZR User", desc: "Internal transfer via Email/Phone/ID, instant, zero fee"
+  2. **On-Chain Withdraw** — icon: chain link, title: "On-Chain Withdraw", desc: "Withdraw to external wallet address"
+  3. **Fiat Withdrawal** — icon: bank, title: "Fiat Withdrawal (HKD/USD)", desc: "Withdraw to linked bank account"
+  4. **OTC/Block Trade** — icon: handshake, title: "OTC Block Trade", desc: "For amounts >HK$500,000, institutional desk"
+- **Card style:** 72px height, 16px padding, 1px border #E8E8E8, 12px radius, left icon 40px + text
+- **Behavior:** Tap card → navigate to respective withdraw flow
 
 ### Filter/Sort Controls (48px)
 - Bottom of header:

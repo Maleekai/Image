@@ -73,17 +73,44 @@ ZR Securities is a Hong Kong SFC-licensed multi-market broker. Users browse and 
   - Text color: #5F6368
 - **Behavior:** Tap columns to toggle sort ASC/DESC, show sort indicator (↑/↓)
 
-### Market Row
+### Market Sentiment Card (DA-013 / IO-008 — from Binance Opportunity Dashboard)
+- **Position:** Between Category Tabs and Sort Header
+- **Dimensions:** Full width, 80px height, 16px padding, 12px border-radius
+- **Background:** Linear gradient #F0F4FF → #FFFFFF (light blue fade)
+- **Layout (horizontal, 3 equal columns):**
+  - Column 1: "Total Mkt Cap" (10px gray) + "$3.67T" (16px bold) + "+0.50%" (12px green)
+  - Column 2: "24h Volume" (10px gray) + "$181.5B" (16px bold) + "-19.89%" (12px red)
+  - Column 3: Fear & Greed gauge — semicircle arc (40px wide) with needle, score "28" (16px bold), label "Fear" (10px, #EA4335)
+- **Behavior:** Tap to expand full Market Intelligence panel (IO-002 AI companion)
+- **Competitive ref:** Binance AI Hub "Opportunity" dashboard (截图526.png)
+
+### Market Row (DA-013 — enhanced with mini sparkline from Binance)
 - **Dimensions:** 64px height, 16px padding horizontal
 - **Layout (left to right):**
-  - Icon: 36px × 36px (crypto/stock/forex logo)
-  - Name: flex-grow, Inter 14px bold
-  - Exchange badge: 20px height, Inter 10px, #1A73E8 background, rounded 4px
-  - Price: JetBrains Mono 14px, #000000
-  - Change badge: 24px × 28px pill, red (#EA4335) or green (#34A853), white text, ±9.42%
-  - Sparkline: 40px × 24px, green/red line chart
+  - Icon: 36px × 36px (crypto/stock/forex logo, rounded 8px)
+  - Name block (flex-grow):
+    - Symbol: Inter 14px bold, #000 (e.g. "BTC")
+    - Full name: Inter 11px, #9AA0A6 (e.g. "Bitcoin")
+    - Exchange badge: inline pill 16px height, Inter 9px, exchange color bg + white text
+  - **Mini Sparkline: 48px × 24px** (24h price trend, 1px line)
+    - Green (#34A853) line if positive 24h change
+    - Red (#EA4335) line if negative 24h change
+    - No axes, no labels, pure trend line
+    - **This is a key Binance-derived enhancement (DA-013) — makes the list visually scannable**
+  - Price column (80px, right-aligned):
+    - Price: JetBrains Mono 14px, #000000
+    - Change: JetBrains Mono 12px, green/red, ±X.XX%
 - **Separator:** 1px #F0F0F0 bottom
 - **Behavior:** Tap to navigate to Symbol Detail page
+- **Competitive ref:** Binance Markets list每行嵌入迷你K线; OKX纯数字
+
+### Heatmap Toggle (IO-009 — ZR Innovation)
+- **Position:** In Sort Header, right side
+- **Type:** Icon toggle button (24px)
+- **Icons:** List view (≡) | Heatmap view (田)
+- **Default:** List view
+- **Behavior:** Toggle between list and treemap heatmap visualization
+- **Heatmap mode:** See 09-heatmap.md for full spec
 
 ### Bottom Tab Bar
 - **Dimensions:** 83px height (including safe area)
